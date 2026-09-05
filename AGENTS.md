@@ -26,6 +26,16 @@ This is the core architectural decision. The app is a **virtual tabletop** (like
 - End-game scoring is **semi-automatic**: players mark which items are equipped, the app calculates score from item data + quest-giver rules (not fully automatic, since quest-giver rules are partly free-text/flavorful).
 - This is deliberate: locking game rules into code too early makes it expensive to iterate on rule ideas, and the rules are still evolving.
 
+### Note: per-zone/deck setup config (not yet built)
+
+Bug found in Phase 0: moving a card between zones was forcibly flipping it face-up (except in decks) — fixed so `MOVE_CARD` never changes which side faces up; only an explicit flip action does. No implicit "reveal on placement" behavior.
+
+This raised a related idea worth remembering: once Phase 1 introduces multiple real deck types (items, events, etc.), they'll likely need different **setup** behavior — e.g. starts face up/down, starts shuffled or not. Since zones are already plain data (`Zone` records in `src/lib/game/`, not components), the natural extension is optional fields on `Zone` (e.g. `dealFaceDown?`, `startShuffled?`) read once in `buildInitialState()` — still just setup, not a runtime rule, so it stays consistent with the sandbox philosophy above. Deliberately not building this yet — wait until Phase 1's real deck types show what actually needs to vary, rather than guessing now.
+
+### Note: condition/status tokens (not yet built)
+
+Planned feature: small colored tokens a player can place onto a card to represent state — primarily the physical game's **Conditions** (Broken, Rusty, Dirty, Enchanted, Cursed, Wound, Battle-Scarred — see "Rules reference" below). Not designed or built yet; flagged here so it isn't lost. Likely touches the board layout's planned "token menu" button (see the Phase 0 board-layout mockup discussion) for picking which token to place.
+
 ## Tech Stack
 
 - **Frontend:** Next.js + React + TypeScript
@@ -88,5 +98,3 @@ A fully public, unauthenticated "refresh" button on the live site is discouraged
 
 - Playtest feedback loop: no structure yet for collecting what works/doesn't between sessions.
 - Deployment specifics beyond "likely Vercel" not yet finalized.
-
-<!-- END:nextjs-agent-rules -->

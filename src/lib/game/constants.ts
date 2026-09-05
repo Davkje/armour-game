@@ -1,6 +1,14 @@
-// Must stay in sync with Card.tsx's Tailwind sizing (h-24 w-16) and
-// Zone.tsx's Tailwind padding (p-2), since drop-position math in Board.tsx
-// needs the pixel values to center cards under the cursor correctly.
-export const CARD_WIDTH = 64;
-export const CARD_HEIGHT = 96;
-export const ZONE_PADDING = 8;
+// Reference size only — the actual on-screen card size is responsive, set
+// via the --card-width/--card-height CSS variables in globals.css (a
+// clamp() that scales with viewport width). These numbers match that
+// clamp's ceiling and stay in sync with the card art's 5:7 aspect ratio
+// (500x700). Used for: Next/Image's width/height hints (so the optimizer
+// generates a large-enough source regardless of the live responsive size),
+// and as a fallback for drag math before a card's real live-measured size
+// is available (rare — most drag math measures the actual element instead).
+export const CARD_WIDTH = 180;
+export const CARD_HEIGHT = 252;
+
+// Matches AGENTS.md: "Over 10 rounds, players loot, shop, battle, and betray..."
+export const MIN_ROUND = 1;
+export const MAX_ROUND = 10;
