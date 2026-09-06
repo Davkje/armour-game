@@ -38,6 +38,8 @@ Built: small colored tokens representing the physical game's **Conditions** (Bro
 
 Implementation note: a token is a dnd-kit draggable with `type: "token"`; each card is *also* a droppable (`accept: "token"`) in addition to being draggable itself, so tokens can land on a card in any zone (Player Area, Equipped Items slots, hand, etc.) without per-zone special-casing. Zones' own droppables are scoped to `accept: "card"` so a token dragged over a zone never collides with the zone itself, only the card underneath. Attaching/removing conditions is purely visual bookkeeping on `BoardCard.conditions` — no rule enforcement (e.g. nothing stops you from adding "wound" without an item slot), consistent with the sandbox philosophy above; that logic is for a later phase if it's ever needed.
 
+**Board tokens** (e.g. gold/currency) are a second, distinct token category: freestanding pieces that drop directly into a free-layout zone (currently just Player Area) instead of attaching to a card — modeled separately in `state.tokens` (`BoardToken`, see `types.ts`), not on `BoardCard`. Free zones accept both `"card"` and `"board-token"` drag types. Dragging one out of the token menu (`TokenMenu.tsx`'s `GoldSpawner`, id `spawn-token:gold`) spawns a brand-new `BoardToken`; an already-placed one (`GoldToken.tsx`) drags with its own real id to reposition it — Board.tsx's `handleDragEnd` tells the two apart by checking whether the source id is a known token in `state.tokens`. Extend `FreeTokenType` for any future non-attachable token kind.
+
 ## Tech Stack
 
 - **Frontend:** Next.js + React + TypeScript

@@ -11,6 +11,8 @@ export type ConditionType =
 	| "wound"
 	| "battle-scarred";
 
+export type FreeTokenType = "gold";
+
 export type ZoneKind = "deck" | "discard" | "hand" | "player-area" | "table";
 export type ZoneLayout = "stack" | "free" | "row" | "slot";
 
@@ -44,10 +46,21 @@ export interface Player {
 	name: string;
 }
 
+export type BoardTokenId = string;
+
+export interface BoardToken {
+	id: BoardTokenId;
+	type: FreeTokenType;
+	zoneId: ZoneId;
+	/** Fraction (0-1) of the zone's own size — same convention as BoardCard.position. */
+	position: Position;
+}
+
 export interface BoardState {
 	players: Player[];
 	zones: Record<ZoneId, Zone>;
 	cards: Record<CardId, BoardCard>;
+	tokens: Record<BoardTokenId, BoardToken>;
 	currentTurnPlayerId?: PlayerId;
 	/** Purely manual — players track rounds themselves, nothing advances it automatically. */
 	round: number;
@@ -59,5 +72,8 @@ export type GameAction =
 	| { type: "FLIP_CARD"; cardId: CardId }
 	| { type: "ADD_CONDITION"; cardId: CardId; condition: ConditionType }
 	| { type: "REMOVE_CONDITION"; cardId: CardId; condition: ConditionType }
+	| { type: "PLACE_TOKEN"; tokenType: FreeTokenType; zoneId: ZoneId; position: Position }
+	| { type: "MOVE_TOKEN"; tokenId: BoardTokenId; zoneId: ZoneId; position: Position }
+	| { type: "REMOVE_TOKEN"; tokenId: BoardTokenId }
 	| { type: "SET_ROUND"; round: number }
 	| { type: "RESET_BOARD" };

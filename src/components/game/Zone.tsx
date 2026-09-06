@@ -3,24 +3,27 @@
 import Image from "next/image";
 import { useDroppable } from "@dnd-kit/react";
 import { Card } from "./Card";
+import { GoldToken } from "./GoldToken";
 import { CARD_WIDTH } from "@/lib/game/constants";
-import type { BoardCard, CardId, Zone as ZoneType } from "@/lib/game/types";
+import type { BoardCard, BoardToken, CardId, Zone as ZoneType } from "@/lib/game/types";
 
 export function Zone({
 	zone,
 	cards,
+	tokens = [],
 	onZoom,
 }: {
 	zone: ZoneType;
 	cards: BoardCard[];
+	tokens?: BoardToken[];
 	onZoom: (cardId: CardId) => void;
 }) {
-	// `accept: "card"` keeps a dragged condition token from colliding with the
-	// zone itself — it should only ever land on the card underneath it.
-	const { ref, isDropTarget } = useDroppable({ id: zone.id, accept: "card" });
+	const { ref, isDropTarget } = useDroppable({
+		id: zone.id,
+		accept: zone.layout === "free" ? ["card", "board-token"] : "card",
+	});
 	const sorted = [...cards].sort((a, b) => a.order - b.order);
-	// Stack/slot zones pile cards on top of each other — only the top one
-	// should be clickable/draggable, not whatever's buried underneath it.
+
 	const isPile = zone.layout === "stack" || zone.layout === "slot";
 
 	if (zone.layout === "slot") {
@@ -28,8 +31,8 @@ export function Zone({
 			<div
 				ref={ref}
 				style={{ width: "var(--card-width)", height: "var(--card-height)" }}
-				className={`relative place-self-center justify-self-center rounded-lg border ${
-					isDropTarget ? "border-black/40 bg-black/10" : "border-black/10 bg-black/4"
+				className={`relative place-self-center justify-self-center rounded-sm ${
+					isDropTarget ? "bg-black/10" : "bg-black/4"
 				}`}
 			>
 				{zone.icon ? (
@@ -73,11 +76,6 @@ export function Zone({
 				ref={ref}
 				style={{
 					minHeight: "var(--card-height)",
-					// "stack" zones (decks/discard) get an explicit width matching
-					// the card, so the bordered box hugs the pile instead of
-					// stretching to fill the flex row's available space — "free"/
-					// "row" zones (Table/Player Area/Hand) still stretch, since
-					// those need the extra room.
 					width: zone.layout === "stack" ? "var(--card-width)" : undefined,
 				}}
 				className={`relative ${
@@ -93,6 +91,9 @@ export function Zone({
 						interactive={!isPile || i === sorted.length - 1}
 						onZoom={onZoom}
 					/>
+				))}
+				{tokens.map((token) => (
+					<GoldToken key={token.id} token={token} />
 				))}
 			</div>
 		</div>

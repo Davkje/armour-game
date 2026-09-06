@@ -61,7 +61,7 @@ export function RoundTracker() {
 					e.preventDefault();
 					setIsPickerOpen((open) => !open);
 				}}
-				className="btn-icon text-sm"
+				className="btn-icon text-xl"
 			>
 				{round}
 			</button>
@@ -108,7 +108,7 @@ export function RoundTracker() {
 									setRound(n);
 									setIsPickerOpen(false);
 								}}
-								className={`btn-icon text-sm ${n === round ? "bg-white text-black" : ""}`}
+								className={`btn-icon text-lg ${n === round ? "bg-white text-black" : ""}`}
 							>
 								{n}
 							</motion.button>

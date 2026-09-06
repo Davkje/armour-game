@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { CONDITIONS } from "@/lib/game/conditions";
 import type { ConditionType } from "@/lib/game/types";
+import { RiCopperCoinFill } from "@remixicon/react";
 
 const listVariants = {
 	hidden: { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
@@ -32,6 +33,27 @@ function TokenDot({ id, name, color }: { id: ConditionType; name: string; color:
 				isDragging ? "opacity-40" : "cursor-grab"
 			}`}
 		/>
+	);
+}
+
+function GoldSpawner() {
+	const { ref, isDragging } = useDraggable({ id: "spawn-token:gold", type: "board-token" });
+
+	return (
+		<motion.button
+			ref={ref}
+			type="button"
+			title="Gold"
+			aria-label="Gold token"
+			variants={itemVariants}
+			transition={{ type: "spring", stiffness: 500, damping: 30 }}
+			style={{ touchAction: "none" }}
+			className={`flex h-8 w-8 items-center justify-center rounded-full bg-amber-300 text-amber-800/50 border-2 ${
+				isDragging ? "opacity-40" : "cursor-grab"
+			}`}
+		>
+			<span className="bg-amber-600/20 w-5 h-5 rounded-full"></span>
+		</motion.button>
 	);
 }
 
@@ -70,7 +92,7 @@ export function TokenMenu() {
 				onClick={() => setIsOpen((open) => !open)}
 				className="btn btn-icon"
 			>
-				▲
+				<RiCopperCoinFill />
 			</button>
 
 			<AnimatePresence>
@@ -82,6 +104,8 @@ export function TokenMenu() {
 						variants={listVariants}
 						className="flex flex-col gap-1.5"
 					>
+						<GoldSpawner />
+
 						{CONDITIONS.map((condition) => (
 							<TokenDot
 								key={condition.id}

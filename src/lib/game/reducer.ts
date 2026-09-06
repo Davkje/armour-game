@@ -89,6 +89,42 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 			};
 		}
 
+		case "PLACE_TOKEN": {
+			const zone = state.zones[action.zoneId];
+			if (!zone || zone.layout !== "free") return state;
+
+			const id = `token-${crypto.randomUUID()}`;
+			return {
+				...state,
+				tokens: {
+					...state.tokens,
+					[id]: { id, type: action.tokenType, zoneId: action.zoneId, position: action.position },
+				},
+			};
+		}
+
+		case "MOVE_TOKEN": {
+			const token = state.tokens[action.tokenId];
+			if (!token) return state;
+			const zone = state.zones[action.zoneId];
+			if (!zone || zone.layout !== "free") return state;
+
+			return {
+				...state,
+				tokens: {
+					...state.tokens,
+					[token.id]: { ...token, zoneId: action.zoneId, position: action.position },
+				},
+			};
+		}
+
+		case "REMOVE_TOKEN": {
+			if (!state.tokens[action.tokenId]) return state;
+			const tokens = { ...state.tokens };
+			delete tokens[action.tokenId];
+			return { ...state, tokens };
+		}
+
 		case "SET_ROUND": {
 			const round = Math.min(MAX_ROUND, Math.max(MIN_ROUND, action.round));
 			return { ...state, round };

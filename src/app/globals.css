@@ -95,7 +95,7 @@ p {
 :root {
 	--card-drag-scale: 1.1;
 
-	--card-width: clamp(100px, 9vw, 180px);
+	--card-width: clamp(70px, 9vw, 180px);
 	--card-height: calc(var(--card-width) * 1.4);
 
 	/* Condition token colors — referenced by name from conditions.ts via var(). */
@@ -124,6 +124,15 @@ p {
 	}
 	to {
 		transform: scale(1) rotate(0deg);
+	}
+}
+
+@keyframes card-lift {
+	from {
+		transform: scale(1) rotate(0deg);
+	}
+	to {
+		transform: scale(var(--card-drag-scale)) rotate(-1.5deg);
 	}
 }
 

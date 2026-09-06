@@ -8,7 +8,7 @@ import { RoundTracker } from "./RoundTracker";
 export function GameScreen() {
 	return (
 		<GameProvider>
-			<div className="flex flex-1 flex-col items-center gap-4 p-6">
+			<div className="flex flex-1 flex-col items-center gap-4 p-3">
 				<Board />
 			</div>
 			<RoundTracker />

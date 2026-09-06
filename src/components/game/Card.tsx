@@ -9,6 +9,7 @@ import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, CardId, Zone } from "@/lib/game/types";
 
 const SETTLE_DURATION_MS = 250;
+const LIFT_DURATION_MS = 150;
 const FLIP_DURATION_MS = 400;
 
 // Hides whichever face is pointed away from the viewer during the flip.
@@ -59,11 +60,20 @@ export function Card({
 	});
 	const dispatch = useGameDispatch();
 
+	const [isLifting, setIsLifting] = useState(false);
 	const [isSettling, setIsSettling] = useState(false);
 	const wasDragging = useRef(false);
 
 	useEffect(() => {
+		if (!wasDragging.current && isDragging) {
+			setIsSettling(false);
+			setIsLifting(true);
+			const timer = setTimeout(() => setIsLifting(false), LIFT_DURATION_MS);
+			wasDragging.current = isDragging;
+			return () => clearTimeout(timer);
+		}
 		if (wasDragging.current && !isDragging) {
+			setIsLifting(false);
 			setIsSettling(true);
 			const timer = setTimeout(() => setIsSettling(false), SETTLE_DURATION_MS);
 			wasDragging.current = isDragging;
@@ -106,19 +116,21 @@ export function Card({
 				width: "var(--card-width)",
 				height: "var(--card-height)",
 			}}
-			className={`block shrink-0 select-none ${interactive ? "cursor-grab" : "cursor-default"}`}
+			className={`z-10 block shrink-0 select-none ${interactive ? "cursor-grab" : "cursor-default"}`}
 		>
 			<div
 				style={{
 					perspective: 800,
-					animation: isDragging
-						? "card-wiggle 1s ease-in-out infinite"
-						: isSettling
-							? `card-settle ${SETTLE_DURATION_MS}ms ease-out forwards`
-							: undefined,
+					animation: isLifting
+						? `card-lift ${LIFT_DURATION_MS}ms ease-out forwards`
+						: isDragging
+							? "card-wiggle 1s ease-in-out infinite"
+							: isSettling
+								? `card-settle ${SETTLE_DURATION_MS}ms ease-out forwards`
+								: undefined,
 				}}
 				className={`relative h-full w-full rounded-sm shadow-sm transition-shadow duration-200 ease-out ${
-					isDragging || isSettling ? "shadow-xl" : ""
+					isLifting || isDragging || isSettling ? "shadow-xl" : ""
 				} ${isDropTarget ? "ring-2 ring-yellow-400" : ""}`}
 			>
 				<div

@@ -126,6 +126,7 @@ export function buildInitialState(): BoardState {
 			},
 		},
 		cards: buildPlaceholderCards(),
+		tokens: {},
 	};
 }
 

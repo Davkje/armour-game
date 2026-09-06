@@ -23,20 +23,19 @@ export function CardZoomOverlay({ card, onClose }: { card: BoardCard; onClose: (
 				onClose();
 			}}
 		>
-			<div className="flex max-h-[85vh] items-center gap-6">
-				{/* Card's real source images are 500x700 — the largest we have to zoom into for now. */}
+			<div className="flex items-center gap-6">
 				<Image
 					src={card.faceDown ? "/card_back_test.webp" : "/card_front_test.webp"}
 					alt={card.faceDown ? "Face-down card" : card.label}
 					width={500}
 					height={700}
 					quality={95}
-					className="max-h-[85vh] w-auto rounded-sm shadow-2xl"
+					className="max-h-[90vh] w-auto rounded-sm shadow-2xl"
 					draggable={false}
 				/>
 
 				{card.conditions.length > 0 && (
-					<div className="flex max-h-[85vh] w-64 flex-col gap-3 overflow-y-auto rounded-lg bg-background p-4 shadow-2xl">
+					<div className="flex max-h-[85vh] w-xl flex-col gap-3 overflow-y-auto rounded-lg bg-background p-3 border-2 border-black">
 						<h3 className="text-xs font-semibold tracking-widest text-black/50 uppercase">
 							Conditions
 						</h3>

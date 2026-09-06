@@ -9,14 +9,16 @@ import { PlayerBoard } from "./PlayerBoard";
 import { TokenMenu } from "./TokenMenu";
 import { Zone } from "./Zone";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
-import type { CardId, ConditionType, Position, ZoneId } from "@/lib/game/types";
+import type { CardId, ConditionType, FreeTokenType, Position, ZoneId } from "@/lib/game/types";
 
 export function Board() {
 	const state = useGameState();
 	const dispatch = useGameDispatch();
-	// Offset between the pointer and the card's top-left corner at the moment
-	// the drag started, so the exact spot the card was grabbed stays under the
-	// cursor on drop (rather than assuming the cursor grabbed the center).
+	// Offset between the pointer and the dragged element's top-left corner at
+	// the moment the drag started, so the exact spot it was grabbed stays
+	// under the cursor on drop (rather than assuming the cursor grabbed the
+	// center). Works for cards and board tokens alike — measured live off
+	// whatever element actually started the drag.
 	const grabOffsetRef = useRef<Position>({ x: CARD_WIDTH / 2, y: CARD_HEIGHT / 2 });
 	const [zoomedCardId, setZoomedCardId] = useState<CardId | null>(null);
 
@@ -29,6 +31,22 @@ export function Board() {
 		} else {
 			grabOffsetRef.current = { x: CARD_WIDTH / 2, y: CARD_HEIGHT / 2 };
 		}
+	}
+
+	// Where the dragged element's top-left corner should land, as a fraction
+	// (0-1) of the target zone's own size — shared by cards and board tokens,
+	// since both use the same "free"-zone percentage-position convention.
+	function freeZonePosition(event: DragEndEvent): Position | undefined {
+		const targetShape = event.operation.target?.shape as
+			| { left: number; top: number; width: number; height: number }
+			| undefined;
+		if (!targetShape) return undefined;
+		const pointer = event.operation.position.current;
+		const offset = grabOffsetRef.current;
+		return {
+			x: (pointer.x - offset.x - targetShape.left) / targetShape.width,
+			y: (pointer.y - offset.y - targetShape.top) / targetShape.height,
+		};
 	}
 
 	function handleDragEnd(event: DragEndEvent) {
@@ -50,6 +68,30 @@ export function Board() {
 			return;
 		}
 
+		// A fresh board token (e.g. gold) dragged out of TokenMenu — spawns a
+		// new one directly in whichever free zone it's dropped on.
+		if (sourceId.startsWith("spawn-token:")) {
+			if (!targetId) return;
+			const zone = state.zones[targetId];
+			if (!zone || zone.layout !== "free") return;
+			const position = freeZonePosition(event);
+			if (!position) return;
+			const tokenType = sourceId.slice("spawn-token:".length) as FreeTokenType;
+			dispatch({ type: "PLACE_TOKEN", tokenType, zoneId: targetId, position });
+			return;
+		}
+
+		// An already-placed board token being repositioned.
+		if (state.tokens[sourceId]) {
+			if (!targetId) return;
+			const zone = state.zones[targetId];
+			if (!zone || zone.layout !== "free") return;
+			const position = freeZonePosition(event);
+			if (!position) return;
+			dispatch({ type: "MOVE_TOKEN", tokenId: sourceId, zoneId: targetId, position });
+			return;
+		}
+
 		const cardId = sourceId as CardId;
 
 		// No catch-all "table" zone anymore — dropping over blank space (no
@@ -59,26 +101,17 @@ export function Board() {
 		const zone = state.zones[targetZoneId];
 		if (!zone) return;
 
-		let position: Position = { x: 0, y: 0 };
-		if (zone.layout === "free") {
-			const targetShape = event.operation.target?.shape as
-				| { left: number; top: number; width: number; height: number }
-				| undefined;
-			const pointer = event.operation.position.current;
-			const offset = grabOffsetRef.current;
-			if (targetShape) {
-				position = {
-					x: (pointer.x - offset.x - targetShape.left) / targetShape.width,
-					y: (pointer.y - offset.y - targetShape.top) / targetShape.height,
-				};
-			}
-		}
+		const position: Position =
+			zone.layout === "free" ? (freeZonePosition(event) ?? { x: 0, y: 0 }) : { x: 0, y: 0 };
 
 		dispatch({ type: "MOVE_CARD", cardId, zoneId: targetZoneId, position });
 	}
 
 	const cardsByZone = (zoneId: ZoneId) =>
 		Object.values(state.cards).filter((card) => card.zoneId === zoneId);
+
+	const tokensByZone = (zoneId: ZoneId) =>
+		Object.values(state.tokens).filter((token) => token.zoneId === zoneId);
 
 	const zoomedCard = zoomedCardId ? state.cards[zoomedCardId] : undefined;
 
@@ -138,6 +171,7 @@ export function Board() {
 							<Zone
 								zone={state.zones["player-1-area"]}
 								cards={cardsByZone("player-1-area")}
+								tokens={tokensByZone("player-1-area")}
 								onZoom={setZoomedCardId}
 							/>
 							<Zone
