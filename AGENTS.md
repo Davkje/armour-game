@@ -32,9 +32,11 @@ Bug found in Phase 0: moving a card between zones was forcibly flipping it face-
 
 This raised a related idea worth remembering: once Phase 1 introduces multiple real deck types (items, events, etc.), they'll likely need different **setup** behavior — e.g. starts face up/down, starts shuffled or not. Since zones are already plain data (`Zone` records in `src/lib/game/`, not components), the natural extension is optional fields on `Zone` (e.g. `dealFaceDown?`, `startShuffled?`) read once in `buildInitialState()` — still just setup, not a runtime rule, so it stays consistent with the sandbox philosophy above. Deliberately not building this yet — wait until Phase 1's real deck types show what actually needs to vary, rather than guessing now.
 
-### Note: condition/status tokens (not yet built)
+### Note: condition/status tokens
 
-Planned feature: small colored tokens a player can place onto a card to represent state — primarily the physical game's **Conditions** (Broken, Rusty, Dirty, Enchanted, Cursed, Wound, Battle-Scarred — see "Rules reference" below). Not designed or built yet; flagged here so it isn't lost. Likely touches the board layout's planned "token menu" button (see the Phase 0 board-layout mockup discussion) for picking which token to place.
+Built: small colored tokens representing the physical game's **Conditions** (Broken, Rusty, Dirty, Enchanted, Cursed, Wound, Battle-Scarred — see "Rules reference" below; shared metadata in `src/lib/game/conditions.ts`). Opened via the token menu button (bottom-left, `TokenMenu.tsx`), which works like the round tracker's picker — an upward-opening palette of dots, each an infinite supply (dragging one out doesn't remove it from the menu).
+
+Implementation note: a token is a dnd-kit draggable with `type: "token"`; each card is *also* a droppable (`accept: "token"`) in addition to being draggable itself, so tokens can land on a card in any zone (Player Area, Equipped Items slots, hand, etc.) without per-zone special-casing. Zones' own droppables are scoped to `accept: "card"` so a token dragged over a zone never collides with the zone itself, only the card underneath. Attaching/removing conditions is purely visual bookkeeping on `BoardCard.conditions` — no rule enforcement (e.g. nothing stops you from adding "wound" without an item slot), consistent with the sandbox philosophy above; that logic is for a later phase if it's ever needed.
 
 ## Tech Stack
 
@@ -71,8 +73,39 @@ Two sources that complement each other — one for structured data, one for card
 
 ### Rules reference (from the physical game's rules card)
 
-Actions: Gear Change, Trade, Rest, Repair, Loot, Shop, Battle, Betray.
-Conditions: Broken, Rusty, Dirty, Enchanted, Cursed, Wound, Battle-Scarred (each affects item score differently — see rules card for exact effects).
+Also shown to players in-app via a scrollable reference in the menu drawer (`RulesReference.tsx`) — keep the two in sync if the rules change.
+
+**Your Turn**
+
+1. Draw event card — another player reads the story.
+2. Choose your path — decide and resolve on your story.
+3. You may... — then do the basic actions in order.
+4. Update character — add and remove items or conditions.
+5. Discard — discard items you haven't equipped.
+
+**Actions — Basic**
+
+- Gear Change — shift 1 item.
+- Trade — you can trade with other players.
+- Rest — remove one wound or dirt token.
+- Repair — remove one rust or broken token.
+
+**Actions — Story**
+
+- Loot — loot said amount of cards, or let another player do the same.
+- Shop — draw said amount from the correct pile. View items and pay gold to keep them. Shuffle the rest back in. Sell items for half price, shuffle into the correct pile.
+- Battle — roll and add your weapon's score. Compare to the monster's difficulty. If you win, loot the difficulty amount. If you lose, discard an item.
+- Betray — choose a player. Both roll a die and add your weapon bonus. The winner steals an item of the event card's rarity or lower; the loser gets a wound on that same item slot.
+
+**Conditions** (each affects item score/usability differently):
+
+- Broken — item abilities can't be used. Broken weapons can't be used in battles or betrayals.
+- Rusty — rusty weapons have -1 score in battles or betrayals. Normal score otherwise.
+- Dirty — if you have 3+ dirty items, you pay double in shops.
+- Enchanted — +1 to the item's score.
+- Cursed — +1 to the item's score, but the item can't be switched for another unless stolen.
+- Wound — applied to an item slot. Items in the wounded slot are flipped over — can't be used, score of 0 while flipped.
+- Battle-Scarred — a healed wound becomes a battle-scar. That slot can't be wounded again.
 
 ## Data Sync Workflow
 

@@ -1,9 +1,9 @@
 [data-theme="light"] {
-	--background: #c5c5c5;
-	--foreground: #202020;
+	--background: #e3dccd;
+	--foreground: #131313;
 }
 
-[data-theme="dark"] {
-	--background: #1b1b1c;
-	--foreground: #e6e6e6;
-}
+/* [data-theme="dark"] {
+	--background: #131313;
+	--foreground: #e1d9b2;
+} */

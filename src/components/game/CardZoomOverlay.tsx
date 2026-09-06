@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect } from "react";
+import { CONDITIONS } from "@/lib/game/conditions";
 import type { BoardCard } from "@/lib/game/types";
 
 export function CardZoomOverlay({ card, onClose }: { card: BoardCard; onClose: () => void }) {
@@ -22,16 +23,41 @@ export function CardZoomOverlay({ card, onClose }: { card: BoardCard; onClose: (
 				onClose();
 			}}
 		>
-			{/* Card's real source images are 500x700 — the largest we have to zoom into for now. */}
-			<Image
-				src={card.faceDown ? "/card_back_test.webp" : "/card_front_test.webp"}
-				alt={card.faceDown ? "Face-down card" : card.label}
-				width={500}
-				height={700}
-				quality={95}
-				className="max-h-[85vh] w-auto rounded-sm shadow-2xl"
-				draggable={false}
-			/>
+			<div className="flex max-h-[85vh] items-center gap-6">
+				{/* Card's real source images are 500x700 — the largest we have to zoom into for now. */}
+				<Image
+					src={card.faceDown ? "/card_back_test.webp" : "/card_front_test.webp"}
+					alt={card.faceDown ? "Face-down card" : card.label}
+					width={500}
+					height={700}
+					quality={95}
+					className="max-h-[85vh] w-auto rounded-sm shadow-2xl"
+					draggable={false}
+				/>
+
+				{card.conditions.length > 0 && (
+					<div className="flex max-h-[85vh] w-64 flex-col gap-3 overflow-y-auto rounded-lg bg-background p-4 shadow-2xl">
+						<h3 className="text-xs font-semibold tracking-widest text-black/50 uppercase">
+							Conditions
+						</h3>
+						{card.conditions.map((condition) => {
+							const meta = CONDITIONS.find((c) => c.id === condition);
+							if (!meta) return null;
+							return (
+								<p key={condition} className="text-sm">
+									<span
+										aria-hidden="true"
+										style={{ backgroundColor: `var(${meta.color})` }}
+										className="mr-1.5 inline-block h-2 w-2 rounded-full"
+									/>
+									<span className="font-semibold">{meta.name}</span> —{" "}
+									<span className="text-black/70">{meta.body}</span>
+								</p>
+							);
+						})}
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }

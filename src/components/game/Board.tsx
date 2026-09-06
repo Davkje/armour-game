@@ -6,9 +6,10 @@ import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { CardZoomOverlay } from "./CardZoomOverlay";
 import { useGameDispatch, useGameState } from "./GameProvider";
 import { PlayerBoard } from "./PlayerBoard";
+import { TokenMenu } from "./TokenMenu";
 import { Zone } from "./Zone";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
-import type { CardId, Position, ZoneId } from "@/lib/game/types";
+import type { CardId, ConditionType, Position, ZoneId } from "@/lib/game/types";
 
 export function Board() {
 	const state = useGameState();
@@ -33,12 +34,27 @@ export function Board() {
 	function handleDragEnd(event: DragEndEvent) {
 		if (event.canceled) return;
 
-		const cardId = event.operation.source?.id as CardId | undefined;
-		if (!cardId) return;
+		const sourceId = event.operation.source?.id as string | undefined;
+		if (!sourceId) return;
+		const targetId = event.operation.target?.id as string | undefined;
+
+		// A condition token dragged out of TokenMenu, dropped onto a card
+		// (Card.tsx's own droppable, id "card-drop:<cardId>", accepts only
+		// "token"-type draggables — so this branch only ever sees a valid
+		// card target, never a zone).
+		if (sourceId.startsWith("token:")) {
+			if (!targetId?.startsWith("card-drop:")) return;
+			const condition = sourceId.slice("token:".length) as ConditionType;
+			const cardId = targetId.slice("card-drop:".length);
+			dispatch({ type: "ADD_CONDITION", cardId, condition });
+			return;
+		}
+
+		const cardId = sourceId as CardId;
 
 		// No catch-all "table" zone anymore — dropping over blank space (no
 		// zone under the cursor) isn't a valid move, so the card just reverts.
-		const targetZoneId = event.operation.target?.id as ZoneId | undefined;
+		const targetZoneId = targetId as ZoneId | undefined;
 		if (!targetZoneId) return;
 		const zone = state.zones[targetZoneId];
 		if (!zone) return;
@@ -46,15 +62,14 @@ export function Board() {
 		let position: Position = { x: 0, y: 0 };
 		if (zone.layout === "free") {
 			const targetShape = event.operation.target?.shape as
-				| { left: number; top: number }
+				| { left: number; top: number; width: number; height: number }
 				| undefined;
 			const pointer = event.operation.position.current;
 			const offset = grabOffsetRef.current;
 			if (targetShape) {
-				// Keep the exact point the card was grabbed under the cursor.
 				position = {
-					x: pointer.x - offset.x - targetShape.left,
-					y: pointer.y - offset.y - targetShape.top,
+					x: (pointer.x - offset.x - targetShape.left) / targetShape.width,
+					y: (pointer.y - offset.y - targetShape.top) / targetShape.height,
 				};
 			}
 		}
@@ -70,33 +85,36 @@ export function Board() {
 	return (
 		<>
 			<DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+				<TokenMenu />
 				<div className="flex w-full flex-col gap-4">
-					<div className="grid grid-cols-6 gap-4">
+					<div className="flex flex-wrap gap-4 justify-between">
 						<Zone
 							zone={state.zones["event-deck"]}
 							cards={cardsByZone("event-deck")}
 							onZoom={setZoomedCardId}
 						/>
-						<Zone
-							zone={state.zones["item-deck-common"]}
-							cards={cardsByZone("item-deck-common")}
-							onZoom={setZoomedCardId}
-						/>
-						<Zone
-							zone={state.zones["item-deck-rare"]}
-							cards={cardsByZone("item-deck-rare")}
-							onZoom={setZoomedCardId}
-						/>
-						<Zone
-							zone={state.zones["item-deck-epic"]}
-							cards={cardsByZone("item-deck-epic")}
-							onZoom={setZoomedCardId}
-						/>
-						<Zone
-							zone={state.zones["item-discard"]}
-							cards={cardsByZone("item-discard")}
-							onZoom={setZoomedCardId}
-						/>
+						<div className="flex gap-4">
+							<Zone
+								zone={state.zones["item-deck-common"]}
+								cards={cardsByZone("item-deck-common")}
+								onZoom={setZoomedCardId}
+							/>
+							<Zone
+								zone={state.zones["item-deck-rare"]}
+								cards={cardsByZone("item-deck-rare")}
+								onZoom={setZoomedCardId}
+							/>
+							<Zone
+								zone={state.zones["item-deck-epic"]}
+								cards={cardsByZone("item-deck-epic")}
+								onZoom={setZoomedCardId}
+							/>
+							<Zone
+								zone={state.zones["item-discard"]}
+								cards={cardsByZone("item-discard")}
+								onZoom={setZoomedCardId}
+							/>
+						</div>
 						<Zone
 							zone={state.zones["quest-deck"]}
 							cards={cardsByZone("quest-deck")}

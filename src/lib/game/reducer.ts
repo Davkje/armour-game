@@ -59,6 +59,36 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 			};
 		}
 
+		case "ADD_CONDITION": {
+			const card = state.cards[action.cardId];
+			if (!card) return state;
+			if (card.conditions.includes(action.condition)) return state;
+
+			return {
+				...state,
+				cards: {
+					...state.cards,
+					[card.id]: { ...card, conditions: [...card.conditions, action.condition] },
+				},
+			};
+		}
+
+		case "REMOVE_CONDITION": {
+			const card = state.cards[action.cardId];
+			if (!card) return state;
+
+			return {
+				...state,
+				cards: {
+					...state.cards,
+					[card.id]: {
+						...card,
+						conditions: card.conditions.filter((c) => c !== action.condition),
+					},
+				},
+			};
+		}
+
 		case "SET_ROUND": {
 			const round = Math.min(MAX_ROUND, Math.max(MIN_ROUND, action.round));
 			return { ...state, round };

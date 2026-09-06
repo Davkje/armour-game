@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useDraggable } from "@dnd-kit/react";
+import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { useGameDispatch } from "./GameProvider";
+import { CONDITIONS } from "@/lib/game/conditions";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, CardId, Zone } from "@/lib/game/types";
 
@@ -15,6 +16,20 @@ const backfaceHidden: React.CSSProperties = {
 	backfaceVisibility: "hidden",
 	WebkitBackfaceVisibility: "hidden",
 };
+
+// Combines dnd-kit's draggable and droppable refs onto the same DOM node —
+// a card is both at once (draggable to move it, droppable so a condition
+// token can be dropped onto it).
+function mergeRefs(
+	...refs: (React.Ref<Element> | undefined)[]
+): React.RefCallback<HTMLButtonElement> {
+	return (node) => {
+		for (const ref of refs) {
+			if (typeof ref === "function") ref(node);
+			else if (ref) (ref as React.RefObject<Element | null>).current = node;
+		}
+	};
+}
 
 export function Card({
 	card,
@@ -31,7 +46,17 @@ export function Card({
 	interactive: boolean;
 	onZoom: (cardId: CardId) => void;
 }) {
-	const { ref, isDragging } = useDraggable({ id: card.id, disabled: !interactive });
+	const { ref: dragRef, isDragging } = useDraggable({
+		id: card.id,
+		type: "card",
+		disabled: !interactive,
+	});
+	// `accept: "token"` — only a condition token can drop onto a card, not
+	// another card (card-to-card drops don't mean anything here).
+	const { ref: dropRef, isDropTarget } = useDroppable({
+		id: `card-drop:${card.id}`,
+		accept: "token",
+	});
 	const dispatch = useGameDispatch();
 
 	const [isSettling, setIsSettling] = useState(false);
@@ -49,7 +74,13 @@ export function Card({
 
 	const style: React.CSSProperties =
 		zone.layout === "free"
-			? { position: "absolute", left: card.position.x, top: card.position.y }
+			? // Percentages recompute automatically on resize (no JS needed) —
+				// card.position is a 0-1 fraction of the zone's own size.
+				{
+					position: "absolute",
+					left: `${card.position.x * 100}%`,
+					top: `${card.position.y * 100}%`,
+				}
 			: zone.layout === "stack"
 				? { position: "absolute", left: stackIndex * 2, top: stackIndex * -2 }
 				: zone.layout === "slot"
@@ -58,7 +89,7 @@ export function Card({
 
 	return (
 		<button
-			ref={ref}
+			ref={mergeRefs(dragRef, dropRef)}
 			type="button"
 			onClick={
 				interactive && zone.kind !== "hand"
@@ -86,9 +117,9 @@ export function Card({
 							? `card-settle ${SETTLE_DURATION_MS}ms ease-out forwards`
 							: undefined,
 				}}
-				className={`h-full w-full rounded-md shadow-sm transition-shadow duration-200 ease-out ${
+				className={`relative h-full w-full rounded-sm shadow-sm transition-shadow duration-200 ease-out ${
 					isDragging || isSettling ? "shadow-xl" : ""
-				}`}
+				} ${isDropTarget ? "ring-2 ring-yellow-400" : ""}`}
 			>
 				<div
 					style={{
@@ -105,7 +136,7 @@ export function Card({
 						height={CARD_HEIGHT}
 						quality={95}
 						style={backfaceHidden}
-						className="absolute inset-0 h-full w-full rounded-md object-cover"
+						className="absolute inset-0 h-full w-full rounded-sm object-cover"
 						draggable={false}
 					/>
 					<Image
@@ -115,10 +146,35 @@ export function Card({
 						height={CARD_HEIGHT}
 						quality={95}
 						style={{ ...backfaceHidden, transform: "rotateY(180deg)" }}
-						className="absolute inset-0 h-full w-full rounded-md object-cover"
+						className="absolute inset-0 h-full w-full rounded-sm object-cover"
 						draggable={false}
 					/>
 				</div>
+
+				{/*
+				 * Conditions
+				 */}
+				{card.conditions.length > 0 && (
+					<div className="pointer-events-none absolute inset-x-0 top-12 z-10 flex justify-center gap-1">
+						{card.conditions.map((condition) => {
+							const meta = CONDITIONS.find((c) => c.id === condition);
+							return (
+								<span
+									key={condition}
+									role="button"
+									tabIndex={0}
+									title={`${meta?.name} — click to remove`}
+									onClick={(e) => {
+										e.stopPropagation();
+										dispatch({ type: "REMOVE_CONDITION", cardId: card.id, condition });
+									}}
+									style={{ backgroundColor: meta ? `var(${meta.color})` : undefined }}
+									className="pointer-events-auto h-2 w-2 cursor-pointer rounded-full border border-black/30"
+								/>
+							);
+						})}
+					</div>
+				)}
 			</div>
 		</button>
 	);

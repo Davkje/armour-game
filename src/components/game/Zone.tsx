@@ -15,7 +15,9 @@ export function Zone({
 	cards: BoardCard[];
 	onZoom: (cardId: CardId) => void;
 }) {
-	const { ref, isDropTarget } = useDroppable({ id: zone.id });
+	// `accept: "card"` keeps a dragged condition token from colliding with the
+	// zone itself — it should only ever land on the card underneath it.
+	const { ref, isDropTarget } = useDroppable({ id: zone.id, accept: "card" });
 	const sorted = [...cards].sort((a, b) => a.order - b.order);
 	// Stack/slot zones pile cards on top of each other — only the top one
 	// should be clickable/draggable, not whatever's buried underneath it.
@@ -26,7 +28,7 @@ export function Zone({
 			<div
 				ref={ref}
 				style={{ width: "var(--card-width)", height: "var(--card-height)" }}
-				className={`relative rounded-lg border ${
+				className={`relative place-self-center justify-self-center rounded-lg border ${
 					isDropTarget ? "border-black/40 bg-black/10" : "border-black/10 bg-black/4"
 				}`}
 			>
@@ -34,8 +36,8 @@ export function Zone({
 					<Image
 						src={zone.icon}
 						alt=""
-						width={CARD_WIDTH * 0.18}
-						height={CARD_WIDTH * 0.18}
+						width={CARD_WIDTH * 0.1}
+						height={CARD_WIDTH * 0.1}
 						className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-25"
 					/>
 				) : (
@@ -59,7 +61,7 @@ export function Zone({
 
 	return (
 		<div
-			className={`relative min-w-0 rounded-lg border-2 p-2 transition-colors ease duration-100 ${
+			className={`relative min-w-0 rounded-lg border-2 p-3 transition-colors ease duration-100 ${
 				isDropTarget ? "border-black/40 bg-black/5" : "border-black/10"
 			}`}
 		>
@@ -69,7 +71,15 @@ export function Zone({
 
 			<div
 				ref={ref}
-				style={{ minHeight: "var(--card-height)" }}
+				style={{
+					minHeight: "var(--card-height)",
+					// "stack" zones (decks/discard) get an explicit width matching
+					// the card, so the bordered box hugs the pile instead of
+					// stretching to fill the flex row's available space — "free"/
+					// "row" zones (Table/Player Area/Hand) still stretch, since
+					// those need the extra room.
+					width: zone.layout === "stack" ? "var(--card-width)" : undefined,
+				}}
 				className={`relative ${
 					zone.layout === "row" ? "flex items-center gap-2 overflow-x-auto" : ""
 				}`}

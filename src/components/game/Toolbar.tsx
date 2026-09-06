@@ -29,19 +29,15 @@ export function Toolbar() {
 
 		return (
 			<div className="flex flex-col gap-2 rounded-lg border border-black/10 p-3">
-				<span className="text-sm text-black/70">{label} Current progress will be lost.</span>
+				<span className="text-md text-md">{label} Current progress will be lost.</span>
 				<div className="flex gap-2">
-					<button
-						type="button"
-						onClick={confirmAction}
-						className="flex-1 rounded-full bg-foreground px-4 py-2 text-sm text-background transition-colors hover:opacity-90"
-					>
+					<button type="button" onClick={confirmAction} className="btn-primary text-lg flex-1">
 						Yes
 					</button>
 					<button
 						type="button"
 						onClick={() => setPending(null)}
-						className="flex-1 rounded-full border border-black/20 px-4 py-2 text-sm transition-colors hover:bg-black/5"
+						className="btn-secondary text-lg flex-1"
 					>
 						Cancel
 					</button>
@@ -52,17 +48,13 @@ export function Toolbar() {
 
 	return (
 		<div className="flex flex-col gap-2">
-			<button
-				type="button"
-				onClick={() => setPending("new-game")}
-				className="rounded-full bg-foreground px-4 py-2 text-sm text-background transition-colors hover:opacity-90"
-			>
+			<button type="button" onClick={() => setPending("new-game")} className="btn-primary text-lg">
 				New Game
 			</button>
 			<button
 				type="button"
 				onClick={() => setPending("reset-board")}
-				className="rounded-full border border-black/20 px-4 py-2 text-sm transition-colors hover:bg-black/5"
+				className="btn-secondary text-lg"
 			>
 				Reset Board
 			</button>

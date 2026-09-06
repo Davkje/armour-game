@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef } from "react";
+import { RulesReference } from "./RulesReference";
 import { Toolbar } from "./Toolbar";
+import { RiMenuLine } from "@remixicon/react";
 
 export function MenuDrawer() {
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -12,42 +14,38 @@ export function MenuDrawer() {
 				type="button"
 				aria-label="Open menu"
 				onClick={() => dialogRef.current?.showModal()}
-				className="fixed top-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-md bg-black text-lg text-white"
+				className="btn-icon fixed top-4 right-4 z-30 text-lg"
 			>
-				☰
+				<RiMenuLine />
 			</button>
 
-			{/*
-			 * Native <dialog> via showModal() gives us focus trapping and
-			 * Escape-to-close for free — no custom keyboard/focus handling
-			 * needed. Clicking the backdrop closes it (checking the click
-			 * target against the dialog itself, since the backdrop is
-			 * technically part of the dialog element's own hit area).
-			 */}
 			<dialog
 				ref={dialogRef}
 				aria-labelledby="menu-drawer-title"
 				onClick={(e) => {
 					if (e.target === dialogRef.current) dialogRef.current?.close();
 				}}
-				className="menu-drawer bg-background p-6 shadow-2xl"
+				className="menu-drawer flex flex-col bg-background p-0 shadow-2xl min-w-[40vw]"
 			>
-				<div className="flex h-full flex-col gap-6">
-					<div className="flex items-center justify-between">
-						<h2 id="menu-drawer-title" className="text-sm font-semibold tracking-widest uppercase">
-							Menu
-						</h2>
-						<button
-							type="button"
-							aria-label="Close menu"
-							onClick={() => dialogRef.current?.close()}
-							className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-black/5"
-						>
-							✕
-						</button>
-					</div>
-					{/* Everything else (settings, rules reference, etc.) lands here later. */}
+				<div className="flex shrink-0 items-center justify-between p-6 pb-0">
+					<h2 id="menu-drawer-title" className="font-semibold tracking-widest uppercase">
+						Menu
+					</h2>
+					<button
+						type="button"
+						aria-label="Close menu"
+						onClick={() => dialogRef.current?.close()}
+						className="btn-icon-ghost"
+					>
+						✕
+					</button>
+				</div>
+
+				<div className="flex flex-col gap-6 overflow-y-auto p-6">
 					<Toolbar />
+					<div className="border-t border-black/10 pt-6">
+						<RulesReference />
+					</div>
 				</div>
 			</dialog>
 		</>

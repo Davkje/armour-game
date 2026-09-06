@@ -4,9 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useGameDispatch, useGameState } from "./GameProvider";
 import { MAX_ROUND, MIN_ROUND } from "@/lib/game/constants";
+import { RiArrowDownSFill, RiArrowUpSFill } from "@remixicon/react";
 
-// Descending so 1 renders nearest the tracker (list grows upward from it),
-// 10 furthest, matching the reference mockup.
 const ROUND_OPTIONS = Array.from({ length: MAX_ROUND - MIN_ROUND + 1 }, (_, i) => MAX_ROUND - i);
 
 const listVariants = {
@@ -52,7 +51,7 @@ export function RoundTracker() {
 	return (
 		<div
 			ref={containerRef}
-			className="group fixed right-4 bottom-4 flex flex-col-reverse items-end gap-1.5"
+			className="group fixed right-4 bottom-4 flex flex-col-reverse items-end gap-1"
 		>
 			<button
 				type="button"
@@ -62,30 +61,30 @@ export function RoundTracker() {
 					e.preventDefault();
 					setIsPickerOpen((open) => !open);
 				}}
-				className="flex h-10 w-10 items-center justify-center rounded-md bg-black text-sm font-semibold text-white"
+				className="btn-icon text-sm"
 			>
 				{round}
 			</button>
 
 			{!isPickerOpen && (
-				<div className="flex w-10 flex-col items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+				<div className="flex w-10 flex-col items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
 					<button
 						type="button"
 						aria-label="Increase round"
 						onClick={() => setRound(round + 1)}
 						disabled={round >= MAX_ROUND}
-						className="flex h-5 w-8 items-center justify-center rounded bg-black text-[10px] text-white disabled:opacity-30"
+						className="btn-icon h-5 bg-black text-white"
 					>
-						▲
+						<RiArrowUpSFill />
 					</button>
 					<button
 						type="button"
 						aria-label="Decrease round"
 						onClick={() => setRound(round - 1)}
 						disabled={round <= MIN_ROUND}
-						className="flex h-5 w-8 items-center justify-center rounded bg-black text-[10px] text-white disabled:opacity-30"
+						className="btn-icon h-5 bg-black text-white"
 					>
-						▼
+						<RiArrowDownSFill />
 					</button>
 				</div>
 			)}
@@ -97,7 +96,7 @@ export function RoundTracker() {
 						animate="visible"
 						exit="hidden"
 						variants={listVariants}
-						className="flex flex-col gap-1.5"
+						className="flex flex-col gap-1"
 					>
 						{ROUND_OPTIONS.map((n) => (
 							<motion.button
@@ -109,9 +108,7 @@ export function RoundTracker() {
 									setRound(n);
 									setIsPickerOpen(false);
 								}}
-								className={`flex h-10 w-10 items-center justify-center rounded-md text-sm font-semibold ${
-									n === round ? "bg-white text-black" : "bg-black text-white"
-								}`}
+								className={`btn-icon text-sm ${n === round ? "bg-white text-black" : ""}`}
 							>
 								{n}
 							</motion.button>
