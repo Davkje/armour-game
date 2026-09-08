@@ -82,7 +82,7 @@ export function RulesReference() {
 							<span
 								aria-hidden="true"
 								style={{ backgroundColor: `var(${entry.color})` }}
-								className="mr-1.5 inline-block h-2 w-2 rounded-full"
+								className="mr-1.5 inline-block h-3 w-3 rounded-full"
 							/>
 							<span className="font-semibold">{entry.name}</span> —{" "}
 							<span className="text-black/70">{entry.body}</span>

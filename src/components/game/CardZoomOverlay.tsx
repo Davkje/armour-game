@@ -47,7 +47,7 @@ export function CardZoomOverlay({ card, onClose }: { card: BoardCard; onClose: (
 									<span
 										aria-hidden="true"
 										style={{ backgroundColor: `var(${meta.color})` }}
-										className="mr-1.5 inline-block h-2 w-2 rounded-full"
+										className="mr-1.5 inline-block h-3 w-3 rounded-full"
 									/>
 									<span className="font-semibold">{meta.name}</span> —{" "}
 									<span className="text-black/70">{meta.body}</span>

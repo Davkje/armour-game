@@ -1,4 +1,4 @@
-import type { BoardCard, BoardState, ZoneId } from "./types";
+import type { BoardCard, BoardState, Player, PlayerId, Zone, ZoneId } from "./types";
 
 const CARDS_PER_STARTING_DECK = 8;
 
@@ -30,101 +30,139 @@ function buildPlaceholderCards(): Record<string, BoardCard> {
 	return cards;
 }
 
-export function buildInitialState(): BoardState {
-	return {
-		players: [{ id: "player-1", name: "Player 1" }],
-		currentTurnPlayerId: "player-1",
-		round: 1,
-		zones: {
-			"event-deck": { id: "event-deck", kind: "deck", layout: "stack", label: "Event Deck" },
-			"item-deck-common": {
-				id: "item-deck-common",
-				kind: "deck",
-				layout: "stack",
-				label: "Common Items",
-			},
-			"item-deck-rare": {
-				id: "item-deck-rare",
-				kind: "deck",
-				layout: "stack",
-				label: "Rare Items",
-			},
-			"item-deck-epic": {
-				id: "item-deck-epic",
-				kind: "deck",
-				layout: "stack",
-				label: "Epic Items",
-			},
-			"item-discard": {
-				id: "item-discard",
-				kind: "discard",
-				layout: "stack",
-				label: "Item Discard",
-			},
-			"quest-deck": { id: "quest-deck", kind: "deck", layout: "stack", label: "Quest Deck" },
-			"player-1-hand": {
-				id: "player-1-hand",
-				kind: "hand",
-				layout: "row",
-				label: "Hand",
-				ownerId: "player-1",
-			},
-			"player-1-area": {
-				id: "player-1-area",
-				kind: "player-area",
-				layout: "free",
-				label: "Player Area",
-				ownerId: "player-1",
-			},
-			"player-1-slot-head": {
-				id: "player-1-slot-head",
-				kind: "player-area",
-				layout: "slot",
-				label: "Head",
-				ownerId: "player-1",
-				icon: "/icon_head.svg",
-			},
-			"player-1-slot-top": {
-				id: "player-1-slot-top",
-				kind: "player-area",
-				layout: "slot",
-				label: "Top",
-				ownerId: "player-1",
-				icon: "/icon_top.svg",
-			},
-			"player-1-slot-legs": {
-				id: "player-1-slot-legs",
-				kind: "player-area",
-				layout: "slot",
-				label: "Legs",
-				ownerId: "player-1",
-				icon: "/icon_legs.svg",
-			},
-			"player-1-slot-hand-main": {
-				id: "player-1-slot-hand-main",
-				kind: "player-area",
-				layout: "slot",
-				label: "Hand",
-				ownerId: "player-1",
-				icon: "/icon_hand.svg",
-			},
-			"player-1-slot-hand-off": {
-				id: "player-1-slot-hand-off",
-				kind: "player-area",
-				layout: "slot",
-				label: "Hand",
-				ownerId: "player-1",
-				icon: "/icon_hand.svg",
-			},
-			"player-1-slot-extra": {
-				id: "player-1-slot-extra",
-				kind: "player-area",
-				layout: "slot",
-				label: "Extra",
-				ownerId: "player-1",
-				icon: "/icon_extra.svg",
-			},
+/**
+ * Every zone a single player owns (Hand, Player Area, the 6 Equipped Items
+ * slots) — factored out so the board scales to N players instead of one
+ * hardcoded copy. Zone ids are namespaced by player id (e.g.
+ * "player-2-hand"), so `zonesForPlayer("player-2")` never collides with
+ * another player's zones.
+ */
+export function zonesForPlayer(playerId: PlayerId): Record<ZoneId, Zone> {
+	const zones: Record<ZoneId, Zone> = {
+		[`${playerId}-hand`]: {
+			id: `${playerId}-hand`,
+			kind: "hand",
+			layout: "row",
+			label: "Hand",
+			ownerId: playerId,
 		},
+		[`${playerId}-area`]: {
+			id: `${playerId}-area`,
+			kind: "player-area",
+			layout: "free",
+			label: "Player Area",
+			ownerId: playerId,
+		},
+		[`${playerId}-slot-head`]: {
+			id: `${playerId}-slot-head`,
+			kind: "player-area",
+			layout: "slot",
+			label: "Head",
+			ownerId: playerId,
+			icon: "/icon_head.svg",
+		},
+		[`${playerId}-slot-top`]: {
+			id: `${playerId}-slot-top`,
+			kind: "player-area",
+			layout: "slot",
+			label: "Top",
+			ownerId: playerId,
+			icon: "/icon_top.svg",
+		},
+		[`${playerId}-slot-legs`]: {
+			id: `${playerId}-slot-legs`,
+			kind: "player-area",
+			layout: "slot",
+			label: "Legs",
+			ownerId: playerId,
+			icon: "/icon_legs.svg",
+		},
+		[`${playerId}-slot-hand-main`]: {
+			id: `${playerId}-slot-hand-main`,
+			kind: "player-area",
+			layout: "slot",
+			label: "Hand",
+			ownerId: playerId,
+			icon: "/icon_hand.svg",
+		},
+		[`${playerId}-slot-hand-off`]: {
+			id: `${playerId}-slot-hand-off`,
+			kind: "player-area",
+			layout: "slot",
+			label: "Hand",
+			ownerId: playerId,
+			icon: "/icon_hand.svg",
+		},
+		[`${playerId}-slot-extra`]: {
+			id: `${playerId}-slot-extra`,
+			kind: "player-area",
+			layout: "slot",
+			label: "Extra",
+			ownerId: playerId,
+			icon: "/icon_extra.svg",
+		},
+	};
+	return zones;
+}
+
+/** The 6 Equipped Items slot zone ids for a player, in display order. */
+export function equippedSlotIds(playerId: PlayerId): ZoneId[] {
+	return [
+		`${playerId}-slot-head`,
+		`${playerId}-slot-top`,
+		`${playerId}-slot-legs`,
+		`${playerId}-slot-hand-main`,
+		`${playerId}-slot-hand-off`,
+		`${playerId}-slot-extra`,
+	];
+}
+
+/** Clamped to the 2-4 range offered on the homepage's local player picker. */
+export function buildInitialState(requestedPlayerCount = 2): BoardState {
+	const playerCount = Math.min(4, Math.max(2, requestedPlayerCount));
+	const players: Player[] = Array.from({ length: playerCount }, (_, i) => ({
+		id: `player-${i + 1}`,
+		name: `Player ${i + 1}`,
+	}));
+
+	const zones: Record<ZoneId, Zone> = {
+		"event-deck": { id: "event-deck", kind: "deck", layout: "stack", label: "Event Deck" },
+		"item-deck-common": {
+			id: "item-deck-common",
+			kind: "deck",
+			layout: "stack",
+			label: "Common Items",
+		},
+		"item-deck-rare": {
+			id: "item-deck-rare",
+			kind: "deck",
+			layout: "stack",
+			label: "Rare Items",
+		},
+		"item-deck-epic": {
+			id: "item-deck-epic",
+			kind: "deck",
+			layout: "stack",
+			label: "Epic Items",
+		},
+		"item-discard": {
+			id: "item-discard",
+			kind: "discard",
+			layout: "stack",
+			label: "Item Discard",
+		},
+		"quest-deck": { id: "quest-deck", kind: "deck", layout: "stack", label: "Quest Deck" },
+	};
+
+	for (const player of players) {
+		Object.assign(zones, zonesForPlayer(player.id));
+	}
+
+	return {
+		players,
+		currentTurnPlayerId: players[0].id,
+		round: 1,
+		zones,
 		cards: buildPlaceholderCards(),
 		tokens: {},
 	};

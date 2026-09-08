@@ -9,6 +9,5 @@
 export const CARD_WIDTH = 180;
 export const CARD_HEIGHT = 252;
 
-// Matches AGENTS.md: "Over 10 rounds, players loot, shop, battle, and betray..."
 export const MIN_ROUND = 1;
 export const MAX_ROUND = 10;

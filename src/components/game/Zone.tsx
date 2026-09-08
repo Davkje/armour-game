@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useDroppable } from "@dnd-kit/react";
 import { Card } from "./Card";
 import { GoldToken } from "./GoldToken";
+import { useActivePlayerId } from "./GameProvider";
 import { CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, BoardToken, CardId, Zone as ZoneType } from "@/lib/game/types";
 
@@ -11,16 +12,29 @@ export function Zone({
 	zone,
 	cards,
 	tokens = [],
+	hideHand = false,
 	onZoom,
 }: {
 	zone: ZoneType;
 	cards: BoardCard[];
 	tokens?: BoardToken[];
+	// Renders this zone's cards face-down regardless of their real state —
+	// for another player's hand in the local hotseat view (see Card.tsx's
+	// forceFaceDown for why this is a courtesy, not real hiding).
+	hideHand?: boolean;
 	onZoom: (cardId: CardId) => void;
 }) {
+	const [activePlayerId] = useActivePlayerId();
+	// Zones with no owner (decks, discard, quest deck) are shared/public —
+	// always interactive. A zone owned by a player is only a valid drop
+	// target while that player is the active one (see AGENTS.md's note on
+	// local hotseat testing) — you can't move cards onto someone else's
+	// board just because you can currently see it.
+	const isLockedToOtherPlayer = zone.ownerId !== undefined && zone.ownerId !== activePlayerId;
 	const { ref, isDropTarget } = useDroppable({
 		id: zone.id,
 		accept: zone.layout === "free" ? ["card", "board-token"] : "card",
+		disabled: isLockedToOtherPlayer,
 	});
 	const sorted = [...cards].sort((a, b) => a.order - b.order);
 
@@ -55,6 +69,7 @@ export function Zone({
 						zone={zone}
 						stackIndex={i}
 						interactive={!isPile || i === sorted.length - 1}
+						forceFaceDown={zone.kind === "hand" && hideHand}
 						onZoom={onZoom}
 					/>
 				))}
@@ -89,11 +104,12 @@ export function Zone({
 						zone={zone}
 						stackIndex={i}
 						interactive={!isPile || i === sorted.length - 1}
+						forceFaceDown={zone.kind === "hand" && hideHand}
 						onZoom={onZoom}
 					/>
 				))}
 				{tokens.map((token) => (
-					<GoldToken key={token.id} token={token} />
+					<GoldToken key={token.id} token={token} zone={zone} />
 				))}
 			</div>
 		</div>

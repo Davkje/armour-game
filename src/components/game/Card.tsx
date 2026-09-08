@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
-import { useGameDispatch } from "./GameProvider";
+import { useActivePlayerId, useGameDispatch } from "./GameProvider";
 import { CONDITIONS } from "@/lib/game/conditions";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, CardId, Zone } from "@/lib/game/types";
@@ -37,20 +37,28 @@ export function Card({
 	zone,
 	stackIndex,
 	interactive,
+	forceFaceDown = false,
 	onZoom,
 }: {
 	card: BoardCard;
 	zone: Zone;
 	stackIndex: number;
-	// Cards buried under the top of a stack/slot pile aren't clickable or
-	// draggable — only the visible top card is.
 	interactive: boolean;
+	forceFaceDown?: boolean;
 	onZoom: (cardId: CardId) => void;
 }) {
+	const [activePlayerId] = useActivePlayerId();
+	// A card in a zone owned by another player can't be dragged or flipped —
+	// same rule as Zone.tsx's droppable lock, checked independently here
+	// since dragging (moving a card OUT of a zone) is a different primitive
+	// than the zone's own droppable (moving a card INTO it).
+	const isOwnedByActivePlayer = !zone.ownerId || zone.ownerId === activePlayerId;
+	const canInteract = interactive && isOwnedByActivePlayer;
+
 	const { ref: dragRef, isDragging } = useDraggable({
 		id: card.id,
 		type: "card",
-		disabled: !interactive,
+		disabled: !canInteract,
 	});
 	// `accept: "token"` — only a condition token can drop onto a card, not
 	// another card (card-to-card drops don't mean anything here).
@@ -102,12 +110,15 @@ export function Card({
 			ref={mergeRefs(dragRef, dropRef)}
 			type="button"
 			onClick={
-				interactive && zone.kind !== "hand"
+				canInteract && zone.kind !== "hand"
 					? () => dispatch({ type: "FLIP_CARD", cardId: card.id })
 					: undefined
 			}
 			onContextMenu={(e) => {
 				e.preventDefault();
+				// Zoom stays available even for another player's zone — it's a
+				// read-only inspect, not a manipulation, and a hidden hand card
+				// just shows its (already-forced) face-down back anyway.
 				if (interactive) onZoom(card.id);
 			}}
 			style={{
@@ -116,7 +127,7 @@ export function Card({
 				width: "var(--card-width)",
 				height: "var(--card-height)",
 			}}
-			className={`z-10 block shrink-0 select-none ${interactive ? "cursor-grab" : "cursor-default"}`}
+			className={`z-10 block shrink-0 select-none ${canInteract ? "cursor-grab" : "cursor-default"}`}
 		>
 			<div
 				style={{
@@ -136,7 +147,7 @@ export function Card({
 				<div
 					style={{
 						transformStyle: "preserve-3d",
-						transform: `rotateY(${card.faceDown ? 180 : 0}deg)`,
+						transform: `rotateY(${card.faceDown || forceFaceDown ? 180 : 0}deg)`,
 						transition: `transform ${FLIP_DURATION_MS}ms ease`,
 					}}
 					className="relative h-full w-full"
@@ -178,10 +189,12 @@ export function Card({
 									title={`${meta?.name} — click to remove`}
 									onClick={(e) => {
 										e.stopPropagation();
-										dispatch({ type: "REMOVE_CONDITION", cardId: card.id, condition });
+										if (canInteract) {
+											dispatch({ type: "REMOVE_CONDITION", cardId: card.id, condition });
+										}
 									}}
 									style={{ backgroundColor: meta ? `var(${meta.color})` : undefined }}
-									className="pointer-events-auto h-2 w-2 cursor-pointer rounded-full border border-black/30"
+									className={`pointer-events-auto h-2 w-2 rounded-full border border-black/30 ${canInteract ? "cursor-pointer" : "cursor-default"}`}
 								/>
 							);
 						})}

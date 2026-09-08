@@ -1,13 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useGameDispatch } from "./GameProvider";
 import { STARTING_DECK_ZONE_IDS } from "@/lib/game/initialState";
 
-type PendingAction = "new-game" | "reset-board" | null;
+type PendingAction = "new-game" | "reset-board" | "exit-game" | null;
+
+const CONFIRM_COPY: Record<Exclude<PendingAction, null>, string> = {
+	"new-game": "Start a new game?",
+	"reset-board": "Reset the board?",
+	"exit-game": "Exit to the homepage?",
+};
 
 export function Toolbar() {
 	const dispatch = useGameDispatch();
+	const router = useRouter();
 	const [pending, setPending] = useState<PendingAction>(null);
 
 	function handleNewGame() {
@@ -23,13 +31,23 @@ export function Toolbar() {
 		setPending(null);
 	}
 
+	function handleExitGame() {
+		router.push("/");
+	}
+
 	if (pending) {
-		const label = pending === "new-game" ? "Start a new game?" : "Reset the board?";
-		const confirmAction = pending === "new-game" ? handleNewGame : handleResetBoard;
+		const confirmAction =
+			pending === "new-game"
+				? handleNewGame
+				: pending === "reset-board"
+					? handleResetBoard
+					: handleExitGame;
 
 		return (
 			<div className="flex flex-col gap-2 rounded-lg border border-black/10 p-3">
-				<span className="text-md text-md">{label} Current progress will be lost.</span>
+				<span className="text-md text-md">
+					{CONFIRM_COPY[pending]} Current progress will be lost.
+				</span>
 				<div className="flex gap-2">
 					<button type="button" onClick={confirmAction} className="btn-primary text-lg flex-1">
 						Yes
@@ -57,6 +75,13 @@ export function Toolbar() {
 				className="btn-secondary text-lg"
 			>
 				Reset Board
+			</button>
+			<button
+				type="button"
+				onClick={() => setPending("exit-game")}
+				className="btn-secondary text-lg"
+			>
+				Exit Game
 			</button>
 		</div>
 	);

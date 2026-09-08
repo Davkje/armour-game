@@ -51,7 +51,7 @@ export function RoundTracker() {
 	return (
 		<div
 			ref={containerRef}
-			className="group fixed right-4 bottom-4 flex flex-col-reverse items-end gap-1"
+			className="group fixed z-20 right-4 bottom-4 flex flex-col-reverse items-end gap-1"
 		>
 			<button
 				type="button"

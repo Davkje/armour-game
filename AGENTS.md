@@ -56,6 +56,14 @@ Two categories of state, handled differently:
 - This requires **real server-side access control** for hand data, not just client-side hiding (otherwise a player could inspect network traffic to cheat).
 - Room/session handling (host game, get invite link, join) is scoped into the multiplayer phase and will need research into how other web-based multiplayer card/board games solve it — not yet designed.
 
+### Note: generalizing to N players, before Phase 1's real data (in progress)
+
+Decided while still in Phase 0: worth generalizing the board's zone model to support multiple players *before* wiring in real item/event data, not after. Right now every per-player zone is hardcoded to a single player (`player-1-hand`, `player-1-area`, `player-1-slot-head`, etc., written out by hand in `initialState.ts`, referenced by literal string in `Board.tsx`). Building Phase 1's real data against that single-player-only structure risks having to redo the zone wiring a second time once multiplayer needs show up. Generalizing now — a `buildPlayerZones(playerId)` factory instead of one-off hardcoded zones — costs little against today's placeholder cards, and lets Phase 1's real data land in a structure that already scales to N players.
+
+This also settled how to actually *test* multi-player locally, without needing PartyKit/Phase 2 built yet: a single "Change Player" control that switches which player's zones render as the big interactive board (Equipped Items/Player Area/Hand) — pass the device around like a physical board game, honor-system style. Other players' zones still render, just smaller/read-only-ish in an "other players" area, so trading/betraying (dragging a card onto another player's zone) still works without extra plumbing — same `Zone`/`Card` components either way, they don't care whose zone it is. A non-active player's hand renders forced face-down regardless of the card's real `faceDown` state, matching the existing "honor system" turn-order pattern — this is a courtesy for local hotseat testing, not real security; the real per-client access control described above is still a Phase 2 concern.
+
+Explicitly **not** solving yet: the visual layout for 4 simultaneous players on one screen (where do players 3 and 4 go, rotated zones, etc.) — that's a genuinely hard UI problem best deferred until Phase 2, once real multiplayer constraints are known. The data model doesn't care about player count either way (arrays/records keyed by player id scale to any N); only the screen layout is being deliberately kept simple (1 active player + N others) for now.
+
 ## Data Sources
 
 Two sources that complement each other — one for structured data, one for card art:

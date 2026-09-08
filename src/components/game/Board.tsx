@@ -4,8 +4,8 @@ import { useRef, useState } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { CardZoomOverlay } from "./CardZoomOverlay";
-import { useGameDispatch, useGameState } from "./GameProvider";
-import { PlayerBoard } from "./PlayerBoard";
+import { useActivePlayerId, useGameDispatch, useGameState } from "./GameProvider";
+import { PlayerSection } from "./PlayerSection";
 import { TokenMenu } from "./TokenMenu";
 import { Zone } from "./Zone";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
@@ -14,6 +14,7 @@ import type { CardId, ConditionType, FreeTokenType, Position, ZoneId } from "@/l
 export function Board() {
 	const state = useGameState();
 	const dispatch = useGameDispatch();
+	const [activePlayerId] = useActivePlayerId();
 	// Offset between the pointer and the dragged element's top-left corner at
 	// the moment the drag started, so the exact spot it was grabbed stays
 	// under the cursor on drop (rather than assuming the cursor grabbed the
@@ -119,8 +120,27 @@ export function Board() {
 		<>
 			<DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 				<TokenMenu />
-				<div className="flex w-full flex-col gap-4">
-					<div className="flex flex-wrap gap-4 justify-between">
+				{/*
+				 * One flat flex-wrap container for every player section plus the
+				 * shared decks row — `order` (on each child) controls the visual
+				 * sequence (other players, then decks, then the active player's
+				 * big board) without ever moving a player's zones to a different
+				 * parent in the tree. See PlayerSection.tsx for why that matters.
+				 */}
+				<div className="flex w-full flex-wrap gap-4">
+					{state.players.map((player) => (
+						<PlayerSection
+							key={player.id}
+							player={player}
+							isActive={player.id === activePlayerId}
+							zones={state.zones}
+							cardsByZone={cardsByZone}
+							tokensByZone={tokensByZone}
+							onZoom={setZoomedCardId}
+						/>
+					))}
+
+					<div className="order-2 flex w-full flex-wrap justify-between gap-4">
 						<Zone
 							zone={state.zones["event-deck"]}
 							cards={cardsByZone("event-deck")}
@@ -153,33 +173,6 @@ export function Board() {
 							cards={cardsByZone("quest-deck")}
 							onZoom={setZoomedCardId}
 						/>
-					</div>
-					<div className="flex gap-4">
-						<PlayerBoard
-							zones={[
-								state.zones["player-1-slot-head"],
-								state.zones["player-1-slot-top"],
-								state.zones["player-1-slot-legs"],
-								state.zones["player-1-slot-hand-main"],
-								state.zones["player-1-slot-hand-off"],
-								state.zones["player-1-slot-extra"],
-							]}
-							cardsByZone={cardsByZone}
-							onZoom={setZoomedCardId}
-						/>
-						<div className="grid w-full min-w-0 grid-rows-2 gap-4">
-							<Zone
-								zone={state.zones["player-1-area"]}
-								cards={cardsByZone("player-1-area")}
-								tokens={tokensByZone("player-1-area")}
-								onZoom={setZoomedCardId}
-							/>
-							<Zone
-								zone={state.zones["player-1-hand"]}
-								cards={cardsByZone("player-1-hand")}
-								onZoom={setZoomedCardId}
-							/>
-						</div>
 					</div>
 				</div>
 			</DragDropProvider>
