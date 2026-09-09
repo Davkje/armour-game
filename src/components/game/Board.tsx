@@ -127,7 +127,7 @@ export function Board() {
 				 * big board) without ever moving a player's zones to a different
 				 * parent in the tree. See PlayerSection.tsx for why that matters.
 				 */}
-				<div className="flex w-full flex-wrap gap-4">
+				<div className="flex w-full flex-wrap gap-3">
 					{state.players.map((player) => (
 						<PlayerSection
 							key={player.id}
@@ -140,13 +140,13 @@ export function Board() {
 						/>
 					))}
 
-					<div className="order-2 flex w-full flex-wrap justify-between gap-4">
+					<div className="order-2 flex w-full flex-wrap justify-between gap-3">
 						<Zone
 							zone={state.zones["event-deck"]}
 							cards={cardsByZone("event-deck")}
 							onZoom={setZoomedCardId}
 						/>
-						<div className="flex gap-4">
+						<div className="flex gap-3">
 							<Zone
 								zone={state.zones["item-deck-common"]}
 								cards={cardsByZone("item-deck-common")}

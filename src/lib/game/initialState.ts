@@ -118,11 +118,11 @@ export function equippedSlotIds(playerId: PlayerId): ZoneId[] {
 }
 
 /** Clamped to the 2-4 range offered on the homepage's local player picker. */
-export function buildInitialState(requestedPlayerCount = 2): BoardState {
+export function buildInitialState(requestedPlayerCount = 2, playerNames?: string[]): BoardState {
 	const playerCount = Math.min(4, Math.max(2, requestedPlayerCount));
 	const players: Player[] = Array.from({ length: playerCount }, (_, i) => ({
 		id: `player-${i + 1}`,
-		name: `Player ${i + 1}`,
+		name: playerNames?.[i]?.trim() || `Player ${i + 1}`,
 	}));
 
 	const zones: Record<ZoneId, Zone> = {

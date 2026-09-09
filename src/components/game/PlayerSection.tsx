@@ -31,12 +31,15 @@ export function PlayerSection({
 		<div
 			className={
 				isActive
-					? "order-3 basis-full"
-					: "order-1 flex flex-col gap-2 rounded-xl border-2 border-black/10 p-3 opacity-80 grow"
+					? "order-3 basis-full flex flex-col gap-1"
+					: "order-1 flex flex-col grow gap-1 opacity-60 hover:opacity-100 ease-in transition-opacity"
 			}
 		>
-			{!isActive && <span className="text-xs font-semibold text-black/50">{player.name}</span>}
-			<div className="flex gap-4">
+			<span className={isActive ? "text-lg" : "text-md"}>
+				{player.name}
+				{isActive && <span className="ml-2 text-sm font-normal text-black/50">(Active)</span>}
+			</span>
+			<div className="flex gap-3">
 				<PlayerBoard
 					zones={equippedSlotIds(player.id).map((id) => zones[id])}
 					cardsByZone={cardsByZone}
@@ -45,8 +48,8 @@ export function PlayerSection({
 				<div
 					className={
 						isActive
-							? "grid w-full min-w-0 grid-rows-2 gap-4"
-							: "flex grow flex-col gap-4 min-w-(--card-width)"
+							? "grid w-full min-w-0 grid-rows-2 gap-3"
+							: "flex grow flex-col gap-3 min-w-(--card-width)"
 					}
 				>
 					<Zone

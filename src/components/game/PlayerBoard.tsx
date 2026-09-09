@@ -19,7 +19,7 @@ export function PlayerBoard({
 			<span className="pointer-events-none absolute -bottom-2 left-2 bg-background px-1 text-xs text-black/50 rounded-sm">
 				Equiped Items
 			</span>
-			<div className="grid grid-cols-3 gap-4 h-full">
+			<div className="grid grid-cols-3 gap-3 h-full">
 				<Zone zone={head} cards={cardsByZone(head.id)} onZoom={onZoom} />
 				<Zone zone={top} cards={cardsByZone(top.id)} onZoom={onZoom} />
 				<Zone zone={legs} cards={cardsByZone(legs.id)} onZoom={onZoom} />

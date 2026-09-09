@@ -21,11 +21,17 @@ const ActivePlayerContext = createContext<[PlayerId | undefined, (id: PlayerId) 
 export function GameProvider({
 	children,
 	playerCount = 2,
+	playerNames,
 }: {
 	children: ReactNode;
 	playerCount?: number;
+	playerNames?: string[];
 }) {
-	const [state, dispatch] = useReducer(gameReducer, playerCount, buildInitialState);
+	const [state, dispatch] = useReducer(
+		gameReducer,
+		{ playerCount, playerNames },
+		({ playerCount, playerNames }) => buildInitialState(playerCount, playerNames),
+	);
 	const activePlayerState = useState<PlayerId | undefined>(state.players[0]?.id);
 
 	return (

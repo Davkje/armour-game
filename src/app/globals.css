@@ -17,7 +17,7 @@ body {
 
 /* Base type scale — tweak freely, these are just a starting point. */
 h1 {
-	font-size: 2rem;
+	font-size: 4rem;
 	font-weight: 600;
 	line-height: 1.2;
 	color: var(--foreground);

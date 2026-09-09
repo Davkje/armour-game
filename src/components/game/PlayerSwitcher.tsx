@@ -25,9 +25,9 @@ export function PlayerSwitcher() {
 			title={`Change player — you are ${activePlayer.name}`}
 			aria-label="Change active player"
 			onClick={handleClick}
-			className="btn btn-icon fixed top-4 right-16 z-30 text-lg font-bold"
+			className="btn btn-icon fixed top-4 right-16 z-30 text-lg font-bold w-max px-2"
 		>
-			{activePlayer.name.replace(/[^0-9]/g, "") || activePlayer.name.slice(0, 1)}
+			{activePlayer.name}
 		</button>
 	);
 }
