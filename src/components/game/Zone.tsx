@@ -12,17 +12,14 @@ export function Zone({
 	zone,
 	cards,
 	tokens = [],
-	hideHand = false,
 	onZoom,
+	className = "",
 }: {
 	zone: ZoneType;
 	cards: BoardCard[];
 	tokens?: BoardToken[];
-	// Renders this zone's cards face-down regardless of their real state —
-	// for another player's hand in the local hotseat view (see Card.tsx's
-	// forceFaceDown for why this is a courtesy, not real hiding).
-	hideHand?: boolean;
 	onZoom: (cardId: CardId) => void;
+	className?: string;
 }) {
 	const [activePlayerId] = useActivePlayerId();
 	// Zones with no owner (decks, discard, quest deck) are shared/public —
@@ -47,7 +44,7 @@ export function Zone({
 				style={{ width: "var(--card-width)", height: "var(--card-height)" }}
 				className={`relative place-self-center justify-self-center rounded-sm ${
 					isDropTarget ? "bg-black/10" : "bg-black/4"
-				}`}
+				} ${className}`}
 			>
 				{zone.icon ? (
 					<Image
@@ -69,7 +66,6 @@ export function Zone({
 						zone={zone}
 						stackIndex={i}
 						interactive={!isPile || i === sorted.length - 1}
-						forceFaceDown={zone.kind === "hand" && hideHand}
 						onZoom={onZoom}
 					/>
 				))}
@@ -79,9 +75,9 @@ export function Zone({
 
 	return (
 		<div
-			className={`relative min-w-0 rounded-lg border-2 p-3 transition-colors ease duration-100 ${
+			className={`relative min-w-0 h-full rounded-lg border-2 p-3 transition-colors ease duration-100 ${
 				isDropTarget ? "border-black/40 bg-black/5" : "border-black/10"
-			}`}
+			} ${className}`}
 		>
 			<span className="pointer-events-none absolute -bottom-2 left-2 bg-background px-1 text-xs text-black/50 rounded-sm">
 				{zone.label}
@@ -93,8 +89,8 @@ export function Zone({
 					minHeight: "var(--card-height)",
 					width: zone.layout === "stack" ? "var(--card-width)" : undefined,
 				}}
-				className={`relative ${
-					zone.layout === "row" ? "flex items-center gap-2 overflow-x-auto" : ""
+				className={`relative custom-scrollbar ${
+					zone.layout === "row" ? "flex items-center gap-2 overflow-y-hidden overflow-x-auto" : ""
 				}`}
 			>
 				{sorted.map((card, i) => (
@@ -104,7 +100,6 @@ export function Zone({
 						zone={zone}
 						stackIndex={i}
 						interactive={!isPile || i === sorted.length - 1}
-						forceFaceDown={zone.kind === "hand" && hideHand}
 						onZoom={onZoom}
 					/>
 				))}

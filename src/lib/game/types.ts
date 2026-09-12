@@ -13,6 +13,19 @@ export type ConditionType =
 
 export type FreeTokenType = "gold";
 
+export type ItemRarity = "common" | "rare" | "magic";
+
+/** Structured item stats from the Sheet — only present on item-deck cards; events/quests/races don't need this since their art already bakes in all text. */
+export interface ItemData {
+	itemType: string;
+	rarity: ItemRarity;
+	traits: string[];
+	text: string;
+	bonus: number;
+	feature: string | null;
+	cost: number;
+}
+
 export type ZoneKind = "deck" | "discard" | "hand" | "player-area" | "table";
 export type ZoneLayout = "stack" | "free" | "row" | "slot";
 
@@ -39,6 +52,10 @@ export interface BoardCard {
 	order: number;
 	faceDown: boolean;
 	conditions: ConditionType[];
+	imageFront: string;
+	imageBack: string;
+	/** Only present for cards drawn from an item deck. */
+	item?: ItemData;
 }
 
 export interface Player {

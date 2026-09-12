@@ -1,0 +1,811 @@
+[
+	{
+		"id": 1,
+		"name": "Small Axe",
+		"itemType": "Axe 1-hand",
+		"rarity": "common",
+		"traits": [
+			"Cool",
+			"Light"
+		],
+		"text": "A light woodcutter’s axe, worn but dependable.",
+		"bonus": 1,
+		"feature": "Starts Rusty",
+		"cost": 1,
+		"imageFront": "/cards/items/1-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 2,
+		"name": "Old Axe",
+		"itemType": "Axe 1-hand",
+		"rarity": "rare",
+		"traits": [
+			"Scary",
+			"Sharp",
+			"Metal"
+		],
+		"text": "The blade is nicked and darkened by many years of work.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/2-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 3,
+		"name": "Large Axe",
+		"itemType": "Axe 2-hands",
+		"rarity": "rare",
+		"traits": [
+			"Sharp",
+			"Metal",
+			"Leather"
+		],
+		"text": "Heavy and brutal, built to split more than just wood.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/3-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 4,
+		"name": "Spine-Cleaver",
+		"itemType": "Axe 2-hands",
+		"rarity": "magic",
+		"traits": [
+			"Heavy",
+			"Sharp",
+			"Scary",
+			"Gold"
+		],
+		"text": "A savage axe rumored to have tasted monstrous bones.",
+		"bonus": 3,
+		"feature": "If you win a Betrayal you innitiate, this weapon gets Enchanted",
+		"cost": 3,
+		"imageFront": "/cards/items/4-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 5,
+		"name": "Small Sword",
+		"itemType": "Sword 1-hand",
+		"rarity": "common",
+		"traits": [
+			"Sharp",
+			"Metal"
+		],
+		"text": "A modest blade carried by travelers and soldiers alike.",
+		"bonus": 1,
+		"feature": "Starts Broken",
+		"cost": 1,
+		"imageFront": "/cards/items/5-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 6,
+		"name": "Short Sword",
+		"itemType": "Sword 1-hand",
+		"rarity": "rare",
+		"traits": [
+			"Sharp",
+			"Light",
+			"Metal"
+		],
+		"text": "Balanced and practical, made for quick strikes.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/6-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 7,
+		"name": "Longsword",
+		"itemType": "Sword 2-hands",
+		"rarity": "rare",
+		"traits": [
+			"Sharp",
+			"Leather",
+			"Metal"
+		],
+		"text": "A proud weapon of knights and seasoned warriors.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/7-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 8,
+		"name": "Sword of Vixar",
+		"itemType": "Sword 1-hand",
+		"rarity": "magic",
+		"traits": [
+			"Sharp",
+			"Cool",
+			"Light",
+			"Beautiful"
+		],
+		"text": "A legendary blade that glows faintly in the dark. Vixar was a legendary warrior.",
+		"bonus": 3,
+		"feature": "This Sword counts as Gold in events.",
+		"cost": 3,
+		"imageFront": "/cards/items/8-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 9,
+		"name": "Small Mace",
+		"itemType": "Mace 1-hand",
+		"rarity": "common",
+		"traits": [
+			"Blunt",
+			"Scary"
+		],
+		"text": "A simple iron head on a sturdy wooden shaft.",
+		"bonus": 1,
+		"feature": "Starts Rusty",
+		"cost": 1,
+		"imageFront": "/cards/items/9-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 10,
+		"name": "Simple Mace",
+		"itemType": "Mace 2-hands",
+		"rarity": "rare",
+		"traits": [
+			"Blunt",
+			"Beautiful",
+			"Metal"
+		],
+		"text": "Crude but effective against armor and bone alike.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/10-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 11,
+		"name": "Large Mace",
+		"itemType": "Mace 2-hands",
+		"rarity": "rare",
+		"traits": [
+			"Blunt",
+			"Heavy",
+			"Metal"
+		],
+		"text": "A crushing weapon that lands with terrifying force.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/11-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 12,
+		"name": "The Crusher",
+		"itemType": "Mace 2-hands",
+		"rarity": "magic",
+		"traits": [
+			"Blunt",
+			"Cool",
+			"Gold",
+			"Metal"
+		],
+		"text": "A massive mace said to have shattered castle gates.",
+		"bonus": 3,
+		"feature": "Battles give one extra common item as a reward",
+		"cost": 3,
+		"imageFront": "/cards/items/12-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 13,
+		"name": "Knife",
+		"itemType": "Dagger",
+		"rarity": "common",
+		"traits": [
+			"Light",
+			"Metal"
+		],
+		"text": "A small blade useful for survival — or something quieter.",
+		"bonus": 1,
+		"feature": "Starts Broken",
+		"cost": 1,
+		"imageFront": "/cards/items/13-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 14,
+		"name": "Simple Dagger",
+		"itemType": "Dagger",
+		"rarity": "rare",
+		"traits": [
+			"Sharp",
+			"Light",
+			"Metal"
+		],
+		"text": "Plain steel, easy to hide and quick to draw.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/14-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 15,
+		"name": "Ambushers Dagger",
+		"itemType": "Dagger",
+		"rarity": "rare",
+		"traits": [
+			"Sharp",
+			"Scary",
+			"Metal"
+		],
+		"text": "Something about this blade makes you never whant to let it go...",
+		"bonus": 2,
+		"feature": "This item is Cursed",
+		"cost": 3,
+		"imageFront": "/cards/items/15-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 16,
+		"name": "The Silent Nightmare",
+		"itemType": "Dagger",
+		"rarity": "magic",
+		"traits": [
+			"Sharp",
+			"Light",
+			"Scary",
+			"Metal"
+		],
+		"text": "A black blade whispered about in assassin circles.",
+		"bonus": 3,
+		"feature": "You can Betray every turn.",
+		"cost": 4,
+		"imageFront": "/cards/items/16-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 17,
+		"name": "Round Shield",
+		"itemType": "Shield",
+		"rarity": "common",
+		"traits": [
+			"Blunt",
+			"Cool"
+		],
+		"text": "A sturdy shield strapped with worn leather.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 1,
+		"imageFront": "/cards/items/17-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 18,
+		"name": "Great Shield",
+		"itemType": "Shield",
+		"rarity": "rare",
+		"traits": [
+			"Blunt",
+			"Heavy",
+			"Metal"
+		],
+		"text": "Large enough to hide half a warrior behind it.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/18-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 19,
+		"name": "Dragons Shield",
+		"itemType": "Shield",
+		"rarity": "magic",
+		"traits": [
+			"Heavy",
+			"Blunt",
+			"Beautiful",
+			"Gold"
+		],
+		"text": "Scaled metal said to be forged from dragon remains.",
+		"bonus": 3,
+		"feature": "You can skip unwanted tokens you recieve from battles and betrayals",
+		"cost": 3,
+		"imageFront": "/cards/items/19-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 20,
+		"name": "Spear",
+		"itemType": "Spear",
+		"rarity": "common",
+		"traits": [
+			"Sharp",
+			"Light"
+		],
+		"text": "A reliable weapon used across every kingdom.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 1,
+		"imageFront": "/cards/items/20-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 21,
+		"name": "Great Spear",
+		"itemType": "Spear",
+		"rarity": "rare",
+		"traits": [
+			"Sharp",
+			"Blunt",
+			"Cloth"
+		],
+		"text": "Long and deadly, built to keep enemies at bay.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/21-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 22,
+		"name": "Ezhra, The Kingspear",
+		"itemType": "Spear",
+		"rarity": "magic",
+		"traits": [
+			"Sharp",
+			"Cool",
+			"Blunt",
+			"Gold"
+		],
+		"text": "A royal weapon once carried by a legendary champion.",
+		"bonus": 3,
+		"feature": "This spear cant Break.",
+		"cost": 3,
+		"imageFront": "/cards/items/22-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 23,
+		"name": "Bow",
+		"itemType": "Bow",
+		"rarity": "common",
+		"traits": [
+			"Sharp",
+			"Cloth"
+		],
+		"text": "A simple hunting bow of wood and string.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 1,
+		"imageFront": "/cards/items/23-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 24,
+		"name": "Longbow",
+		"itemType": "Bow",
+		"rarity": "rare",
+		"traits": [
+			"Sharp",
+			"Beautiful",
+			"Scary"
+		],
+		"text": "Tall and powerful, capable of deadly distance.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/24-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 25,
+		"name": "Longbow of Quathar",
+		"itemType": "Bow",
+		"rarity": "magic",
+		"traits": [
+			"Sharp",
+			"Heavy",
+			"Scary",
+			"Cloth"
+		],
+		"text": "An ancient bow rumored to never miss its mark.",
+		"bonus": 3,
+		"feature": "You can switch this item for another whenever you want, even outside of your turn",
+		"cost": 4,
+		"imageFront": "/cards/items/25-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 26,
+		"name": "Hood",
+		"itemType": "Head",
+		"rarity": "common",
+		"traits": [
+			"Light",
+			"Cloth"
+		],
+		"text": "A quiet traveler’s hood, good for shade and secrecy.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 1,
+		"imageFront": "/cards/items/26-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 27,
+		"name": "Simple Hat",
+		"itemType": "Head",
+		"rarity": "common",
+		"traits": [
+			"Beautiful",
+			"Cloth"
+		],
+		"text": "Plain cloth, but better than facing the sun bareheaded.",
+		"bonus": 1,
+		"feature": "You may look at the top of the Common pile at the start fo your turn",
+		"cost": 1,
+		"imageFront": "/cards/items/27-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 28,
+		"name": "Scary Helmet",
+		"itemType": "Head",
+		"rarity": "rare",
+		"traits": [
+			"Scary",
+			"Blunt",
+			"Leather"
+		],
+		"text": "Jagged metal and grim design meant to terrify foes.",
+		"bonus": 2,
+		"feature": "You may look at the top of the Rare pile at the start fo your turn",
+		"cost": 2,
+		"imageFront": "/cards/items/28-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 29,
+		"name": "Great Helmet",
+		"itemType": "Head",
+		"rarity": "rare",
+		"traits": [
+			"Cool",
+			"Leather",
+			"Metal"
+		],
+		"text": "Thick steel protecting both skull and pride.",
+		"bonus": 2,
+		"feature": "You may look at the top of the Magic pile at the start fo your turn",
+		"cost": 3,
+		"imageFront": "/cards/items/29-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 30,
+		"name": "Dragons Helmet",
+		"itemType": "Head",
+		"rarity": "magic",
+		"traits": [
+			"Cool",
+			"Heavy",
+			"Sharp",
+			"Gold"
+		],
+		"text": "A helm shaped like a dragon’s maw, fierce and imposing.",
+		"bonus": 3,
+		"feature": "You can lie about a Trait to complete an event once",
+		"cost": 3,
+		"imageFront": "/cards/items/30-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 31,
+		"name": "Simple Robe",
+		"itemType": "Top",
+		"rarity": "common",
+		"traits": [
+			"Cool",
+			"Cloth"
+		],
+		"text": "Soft cloth worn by wanderers and scholars.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 1,
+		"imageFront": "/cards/items/31-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 32,
+		"name": "Common Clothing",
+		"itemType": "Top",
+		"rarity": "common",
+		"traits": [
+			"Light",
+			"Cloth"
+		],
+		"text": "Sturdy garments made for everyday travel.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/32-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 33,
+		"name": "Chestpiece",
+		"itemType": "Top",
+		"rarity": "rare",
+		"traits": [
+			"Heavy",
+			"Beautiful",
+			"Leather"
+		],
+		"text": "Solid armor protecting the heart and lungs.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/33-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 34,
+		"name": "Great Armour",
+		"itemType": "Top",
+		"rarity": "rare",
+		"traits": [
+			"Cool",
+			"Metal",
+			"Blunt"
+		],
+		"text": "Heavy plated armor fit for battlefields.",
+		"bonus": 2,
+		"feature": "You can draw from the bottom of item piles.",
+		"cost": 3,
+		"imageFront": "/cards/items/34-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 35,
+		"name": "Dragons armour",
+		"itemType": "Top",
+		"rarity": "magic",
+		"traits": [
+			"Heavy",
+			"Scary",
+			"Leather",
+			"Gold"
+		],
+		"text": "Scaled plating said to be forged in dragonfire.",
+		"bonus": 3,
+		"feature": "You can add this items score to your weapons in Battles",
+		"cost": 4,
+		"imageFront": "/cards/items/35-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 36,
+		"name": "Pants",
+		"itemType": "Bottom",
+		"rarity": "common",
+		"traits": [
+			"Cloth",
+			"Leather"
+		],
+		"text": "Reliable trousers made for long roads.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 1,
+		"imageFront": "/cards/items/36-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 37,
+		"name": "Pantalones",
+		"itemType": "Bottom",
+		"rarity": "common",
+		"traits": [
+			"Light",
+			"Leather"
+		],
+		"text": "Loose traveling pants favored by merchants and sailors.",
+		"bonus": 1,
+		"feature": null,
+		"cost": 1,
+		"imageFront": "/cards/items/37-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 38,
+		"name": "Elven Pants",
+		"itemType": "Bottom",
+		"rarity": "rare",
+		"traits": [
+			"Cool",
+			"Cloth",
+			"Leather"
+		],
+		"text": "Elegant and light, woven with surprising strength.",
+		"bonus": 2,
+		"feature": null,
+		"cost": 2,
+		"imageFront": "/cards/items/38-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 39,
+		"name": "Armored Pants",
+		"itemType": "Bottom",
+		"rarity": "rare",
+		"traits": [
+			"Metal",
+			"Blunt",
+			"Scary"
+		],
+		"text": "Reinforced with metal plates for brutal fights.",
+		"bonus": 2,
+		"feature": "You may draw from the discard pile",
+		"cost": 3,
+		"imageFront": "/cards/items/39-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 40,
+		"name": "Dragon Pants",
+		"itemType": "Bottom",
+		"rarity": "magic",
+		"traits": [
+			"Heavy",
+			"Beautiful",
+			"Metal",
+			"Gold"
+		],
+		"text": "Strange scaled armor rumored to resist flame.",
+		"bonus": 3,
+		"feature": "You cant be Wounded",
+		"cost": 4,
+		"imageFront": "/cards/items/40-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 41,
+		"name": "Small Bag",
+		"itemType": "Bag",
+		"rarity": "common",
+		"traits": [
+			"Light",
+			"Cloth"
+		],
+		"text": "A modest pouch for coins and small finds.",
+		"bonus": 1,
+		"feature": "Carry one more item",
+		"cost": 1,
+		"imageFront": "/cards/items/41-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 42,
+		"name": "Large Bag",
+		"itemType": "Bag",
+		"rarity": "rare",
+		"traits": [
+			"Heavy",
+			"Leather",
+			"Metal"
+		],
+		"text": "Spacious and worn, perfect for long journeys.",
+		"bonus": 2,
+		"feature": "Carry 2 more item",
+		"cost": 2,
+		"imageFront": "/cards/items/42-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 43,
+		"name": "Simple Cloak",
+		"itemType": "Cloak",
+		"rarity": "common",
+		"traits": [
+			"Cool",
+			"Cloth"
+		],
+		"text": "A traveler’s cloak for warmth and rain.",
+		"bonus": 1,
+		"feature": "Can get dirty instead of other worn Items",
+		"cost": 1,
+		"imageFront": "/cards/items/43-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 44,
+		"name": "Magnificant Cloak",
+		"itemType": "Cloak",
+		"rarity": "rare",
+		"traits": [
+			"Beautiful",
+			"Leather",
+			"Cloth"
+		],
+		"text": "Rich fabric flowing with dramatic flair.",
+		"bonus": 2,
+		"feature": "Cant get Dirty",
+		"cost": 2,
+		"imageFront": "/cards/items/44-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 45,
+		"name": "Golden Ring",
+		"itemType": "Jewlery",
+		"rarity": "common",
+		"traits": [
+			"Beautiful",
+			"Cool",
+			"Gold"
+		],
+		"text": "A shining band that catches every eye.",
+		"bonus": 1,
+		"feature": "You sell items for one more gold",
+		"cost": 1,
+		"imageFront": "/cards/items/45-front.png",
+		"imageBack": "/cards/items/back-c805d455.png"
+	},
+	{
+		"id": 46,
+		"name": "Royal Necklace",
+		"itemType": "Jewlery",
+		"rarity": "rare",
+		"traits": [
+			"Cool",
+			"Beautiful",
+			"Gold"
+		],
+		"text": "A jeweled piece worthy of noble courts.",
+		"bonus": 2,
+		"feature": "You get items for one gold cheaper in stores",
+		"cost": 2,
+		"imageFront": "/cards/items/46-front.png",
+		"imageBack": "/cards/items/back-819164cd.png"
+	},
+	{
+		"id": 47,
+		"name": "Potion",
+		"itemType": "Potion",
+		"rarity": "magic",
+		"traits": [
+			"Light",
+			"Scary"
+		],
+		"text": "A corked glass bottle with a mysterious liquid inside.",
+		"bonus": 1,
+		"feature": "When you draw item cards during an event you can double the ammount of cards. Discard this card afterwards.",
+		"cost": 2,
+		"imageFront": "/cards/items/47-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	},
+	{
+		"id": 48,
+		"name": "Spell Scroll",
+		"itemType": "Kit",
+		"rarity": "magic",
+		"traits": [
+			"Light",
+			"Blunt"
+		],
+		"text": "A mysterious scroll with enchanted writing.",
+		"bonus": 1,
+		"feature": "When you draw item cards during an event you can double the ammount of cards. Discard this card afterwards.",
+		"cost": 2,
+		"imageFront": "/cards/items/48-front.png",
+		"imageBack": "/cards/items/back-814b56b2.png"
+	}
+]

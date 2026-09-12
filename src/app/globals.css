@@ -92,6 +92,31 @@ p {
 	@apply btn h-8 w-8 hover:bg-black/5;
 }
 
+/* Thin, low-contrast scrollbar for scrollable zones (mainly hands) instead of
+   the browser's default chunky scrollbar. */
+@utility custom-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: rgb(0 0 0 / 20%) transparent;
+
+	&::-webkit-scrollbar {
+		height: 6px;
+		width: 6px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: rgb(0 0 0 / 20%);
+		border-radius: 999px;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background-color: rgb(0 0 0 / 35%);
+	}
+}
+
 :root {
 	--card-drag-scale: 1.1;
 

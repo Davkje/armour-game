@@ -1,0 +1,26 @@
+[
+	{
+		"id": 1,
+		"nickname": "Dwarf",
+		"ability1": "You can still fight with broken weapon",
+		"ability2": "+1 per Metal Items",
+		"imageFront": "/cards/races/1-front.png",
+		"imageBack": "/cards/races/back-7f0a277b.png"
+	},
+	{
+		"id": 2,
+		"nickname": "Orc",
+		"ability1": "Rust dont effect you",
+		"ability2": "+1 per Sharp Items",
+		"imageFront": "/cards/races/2-front.png",
+		"imageBack": "/cards/races/back-7f0a277b.png"
+	},
+	{
+		"id": 3,
+		"nickname": "Elf",
+		"ability1": "Dirt dont effect you",
+		"ability2": "+1 per Beautifull Items",
+		"imageFront": "/cards/races/3-front.png",
+		"imageBack": "/cards/races/back-7f0a277b.png"
+	}
+]

@@ -1,0 +1,162 @@
+[
+	{
+		"id": 1,
+		"nickname": "KING DWARF",
+		"text": "You helped mine a cursed gem deep underground — but your gear is now cracked, rusted, and humming strangely.",
+		"rules": "+1 point for Heavy and Metall Items\n–1 points for Broken Items",
+		"imageFront": "/cards/quests/1-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 2,
+		"nickname": "THE ORC WARCHIEF",
+		"text": "You joined a raid to prove your strength, but dropped your weapon into the campfire mid-battle. They laughed. A lot.",
+		"rules": "+1 points for Rusty and Sharp items\n-1 points for Beautifull Items",
+		"imageFront": "/cards/quests/2-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 3,
+		"nickname": "THE ELVEN QUEEN",
+		"text": "You were invited to her court. On arrival, she said your armor was \"visually offensive\" and banished it.",
+		"rules": "+1 points for Leather and Light Items\n–1 point for Dirty Items",
+		"imageFront": "/cards/quests/3-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 4,
+		"nickname": "THE FOREST LORD",
+		"text": "You where sent too slay the troll of the forest! It is now dead but all your stuff is stinky from the swamp!",
+		"rules": "+1 point for Cloth and Scary item\n-1 point for cursed items",
+		"imageFront": "/cards/quests/4-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 5,
+		"nickname": "KING OF THIEVES",
+		"text": "You tried to steal back the crown he already stole. You failed, and your gear was stolen in return. How ironic.",
+		"rules": "+1 point for Cool and Gold items\n+3 point if you have a Cloak\n–1 point for Heavy armor",
+		"imageFront": "/cards/quests/5-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 6,
+		"nickname": "LORD OF THE GNOMES",
+		"text": "You helped fix the royal automaton. It exploded. Now your armor smells like oil and gnome fear.",
+		"rules": "+1 point for Metal or Light items\n-1 point if you dont wear a Hat\n+1 point for items with abilitys",
+		"imageFront": "/cards/quests/6-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 7,
+		"nickname": "THE BARBARIAN LEADER",
+		"text": "You followed him into the frost wastes. Your gear froze solid — and then he used it as firewood.",
+		"rules": "+1 point for Fur or Two-handed weapons\n+1 point for Shouting-related titles\n–1 point for Jewelry",
+		"imageFront": "/cards/quests/7-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 8,
+		"nickname": "THE VAMPIRE COUNT",
+		"text": "You accepted a dinner invitation. He fed you blood soup and laughed. Everything you wore is now permanently crimson.",
+		"rules": "+1 point for Black, Silver or Blood-related gear\n+1 point if you have Neckwear\n–1 point for Holy items",
+		"imageFront": "/cards/quests/8-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 9,
+		"nickname": "THE SWAMP HAG",
+		"text": "You tried to barter with her for wisdom. She turned your cloak into a toad. It's still croaking.",
+		"rules": "+1 point for Waterproof or Slimy items\n–1 point for Dry or Flammable items",
+		"imageFront": "/cards/quests/9-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 10,
+		"nickname": "THE WIZARD COUNCIL",
+		"text": "You were sent to return a book. You tripped, fell into a magical archive, and your gear was \"repurposed\" by sentient robes.",
+		"rules": "+1 point for Magic items\n+1 point for wearing Robes\n–1 point for Metal gear\n\n",
+		"imageFront": "/cards/quests/10-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 11,
+		"nickname": "THE MEAT KING",
+		"text": "You helped prepare a royal feast but slipped into the meat grinder. You survived. Your gear didn’t.",
+		"rules": "+1 point for Fur or Bone items\n+1 point if you own a Backpack (to carry meat)\n–1 point for Vegetable-themed gear\n\n",
+		"imageFront": "/cards/quests/11-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 12,
+		"nickname": "THE SNAKE EMPRESS",
+		"text": "You were sent to guard her eggs. You sat on the wrong one. Now your armor is covered in venom and guilt.",
+		"rules": "+1 point for Green or Scaled items\n+1 point for Neck items\n–1 point for Shiny metal gear",
+		"imageFront": "/cards/quests/12-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 13,
+		"nickname": "THE NECROBISHOP",
+		"text": "You tried to bless one of his skeletons. He hexed your helmet, and now it moans in church Latin.",
+		"rules": "+1 point for Bone, Dark, or Cursed items\n+1 point for Skulls\n–1 point for Holy or Shiny items",
+		"imageFront": "/cards/quests/13-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 14,
+		"nickname": "THE CHILD KING",
+		"text": "You brought him a puppy. He gave you a sticker and confiscated your sword for being \"too pokey.\"",
+		"rules": "+1 point for Colorful or Soft items\n+1 point if you own a Pet\n–1 point for Scary-tagged items",
+		"imageFront": "/cards/quests/14-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 15,
+		"nickname": "THE DRAGON KING",
+		"text": "You were asked to help organize his treasure hoard. You sneezed near a pile of rubies. You were... relocated. Forcefully.",
+		"rules": "+1 point for Gold, Gemstone, or Fire-related gear\n+1 point if you wear Red or Scaly gear\n–1 point for Water-tagged or Rusty items\n\n",
+		"imageFront": "/cards/quests/15-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 16,
+		"nickname": "THE GOBLIN BARON",
+		"text": "You tried to trade with the goblins. They paid you in fireworks. Your backpack is now mostly ashes.",
+		"rules": "+1 point for Explosive, Chaotic, or Improvised gear\n+1 point for gear tagged Junk or Recycled\n–1 point for Elegant or Regal items",
+		"imageFront": "/cards/quests/16-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 17,
+		"nickname": "THE GIANT WARLORD",
+		"text": "You helped him tie his boots. He mistook you for a rock and sat on your gear. It’s flatter now.",
+		"rules": "+1 point for Big, Two-handed, or Heavy gear\n+1 point if you have Boots\n–1 point for Tiny or Fragile items",
+		"imageFront": "/cards/quests/17-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 18,
+		"nickname": "THE WILDLING CHIEF",
+		"text": "You joined them on a night hunt. A bear stole your helmet. It looked better on the bear anyway.",
+		"rules": "+1 point for Wooden, Natural, or Camouflage items\n+1 point for Hooded gear\n–1 point for Metal or Royal-looking items",
+		"imageFront": "/cards/quests/18-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 19,
+		"nickname": "THE TROLL KING",
+		"text": "You helped rebuild his bridge. Your armor was used as temporary scaffolding and is now part of the structure.",
+		"rules": "+1 point for Stone, Heavy, or Crude items\n+1 point for Regenerating gear\n–1 point for Shiny or Fancy gear\n\n",
+		"imageFront": "/cards/quests/19-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	},
+	{
+		"id": 20,
+		"nickname": "THE MOUSE PRINCE",
+		"text": "You joined a royal cheese-tasting. The fondue pot exploded. You still smell faintly of Gruyère.",
+		"rules": "+1 point for Small, Quiet or Cloth-based gear\n+1 point for any Pet (especially mice)\n–1 point for Big weapons\n\n",
+		"imageFront": "/cards/quests/20-front.png",
+		"imageBack": "/cards/quests/back-3b0f8219.png"
+	}
+]

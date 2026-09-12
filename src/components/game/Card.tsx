@@ -37,14 +37,12 @@ export function Card({
 	zone,
 	stackIndex,
 	interactive,
-	forceFaceDown = false,
 	onZoom,
 }: {
 	card: BoardCard;
 	zone: Zone;
 	stackIndex: number;
 	interactive: boolean;
-	forceFaceDown?: boolean;
 	onZoom: (cardId: CardId) => void;
 }) {
 	const [activePlayerId] = useActivePlayerId();
@@ -117,8 +115,9 @@ export function Card({
 			onContextMenu={(e) => {
 				e.preventDefault();
 				// Zoom stays available even for another player's zone — it's a
-				// read-only inspect, not a manipulation, and a hidden hand card
-				// just shows its (already-forced) face-down back anyway.
+				// read-only inspect, not a manipulation. Another player's hand
+				// never renders actual Card components (PlayerSection shows just a
+				// count instead), so this never exposes hidden hand cards.
 				if (interactive) onZoom(card.id);
 			}}
 			style={{
@@ -147,13 +146,13 @@ export function Card({
 				<div
 					style={{
 						transformStyle: "preserve-3d",
-						transform: `rotateY(${card.faceDown || forceFaceDown ? 180 : 0}deg)`,
+						transform: `rotateY(${card.faceDown ? 180 : 0}deg)`,
 						transition: `transform ${FLIP_DURATION_MS}ms ease`,
 					}}
 					className="relative h-full w-full"
 				>
 					<Image
-						src="/card_front_test.webp"
+						src={card.imageFront}
 						alt={card.label}
 						width={CARD_WIDTH}
 						height={CARD_HEIGHT}
@@ -163,7 +162,7 @@ export function Card({
 						draggable={false}
 					/>
 					<Image
-						src="/card_back_test.webp"
+						src={card.imageBack}
 						alt="Face-down card"
 						width={CARD_WIDTH}
 						height={CARD_HEIGHT}

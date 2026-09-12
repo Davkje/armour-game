@@ -68,17 +68,17 @@ Explicitly **not** solving yet: the visual layout for 4 simultaneous players on 
 
 Two sources that complement each other — one for structured data, one for card art:
 
-1. **Google Sheet** (canonical structured game data):
+1. **Google Sheet** (canonical structured game data), published to the web per-tab as CSV (that's also how it already feeds Dextrous) — pulled by `scripts/sync-sheet-data.mjs` (`yarn data:sync`) into `src/data/*.json`:
    `https://docs.google.com/spreadsheets/d/1whYUMzpywZDRYpHlXLchZVkGthvRiyIGiQDInuhrJuY/edit?gid=0`
-   - **48 items** — columns: Name, Item Type, Rarity, Traits (`$`-prefixed), Count, Text, Bonus (score), Slot, Feature (ability text), Cost, Image (relative path e.g. `Items/Axes/axe_1.png`)
-   - **21 event cards** — full text, choice logic (e.g. "Right"/"Left"), linked actions (loot/shop/battle/betray with difficulty)
-   - **3 races** (Dwarf, Orc, Elf) with unique abilities
-   - **~20 quest givers** — unique +/- scoring rules for the endgame (e.g. "+1 point for Heavy and Metal Items, -1 for Broken Items")
-   - **Unverified assumption:** sheet rows #1–48 map to CardID 100–147 in the TTS export, in the same order. Verify before building the merge script.
+   - **48 items** (`items.json`) — columns: Name, Item Type, Rarity (**Common/Rare/Magic** — not "Epic"), Traits (`$`-prefixed), Count, Text, Bonus (score), Slot, Feature (ability text), Cost, Image (a Dextrous stock-art reference, not used by the app — the TTS card art already has it baked in). Note: the Items tab has an old draft table (placeholder "A great item!" text) sitting above the real 48-row table; the published CSV (gid=0) is the clean final table only.
+   - **21 event cards** (`events.json`, 22 physical copies — one event has 2 copies) — Text-Front/Text-Back (both sides have story text, already baked into the card art), linked actions (loot/shop/battle/betray with difficulty)
+   - **3 races** (`races.json`: Dwarf, Orc, Elf) with unique abilities
+   - **20 quest givers** (`questgivers.json`) — unique +/- scoring rules for the endgame (e.g. "+1 point for Heavy and Metal Items, -1 for Broken Items")
+   - **Verified:** sheet row order matches CardID order in the TTS export for all 4 tabs — cross-checked Events/Quest-Givers/Races row order against the TTS deck's `Nickname` field (exact match), and Items row order against a rendered Dextrous print export (same 8×6 reading order as the spritesheet grid). Confirmed empirically too: cropping grid position 1/4 of the Items spritesheet produces "Small Axe"/"Spine-Cleaver" as expected.
 
-2. **Dextrous / Tabletop Simulator export** (`Armour_Game_2026-09-03.json`):
-   - Source of **final rendered card images** — 48 cards (CardID 100–147) in an "Items" deck, front/back images hosted on Firebase Storage, plus custom condition tokens (e.g. "Dirty") with their own image URLs.
-   - These images already have all text/design baked in, so the board only needs to display the card image as a draggable object — no need to render card UI from raw data fields.
+2. **Dextrous / Tabletop Simulator export** (`data/dextrous-export.json`, committed):
+   - Source of **final rendered card images** — 4 decks (Items 48, Quests 20, Events 21, Races 3), each a single front/back spritesheet (`FaceUrl`/`BackUrl`, 8×6 grid) hosted on Firebase Storage, sliced into individual per-card PNGs by `scripts/extract-card-art.mjs` (`yarn data:art`) into `public/cards/{items,events,quests,races}/{n}-{front,back}.png`. Every deck has its own real front **and** back art (not one shared placeholder back) — Event cards specifically have story text on both sides.
+   - These images already have all text/design baked in, so the board only needs to display the card image as a draggable object — no need to render card UI from raw data fields (the Sheet's structured fields are still captured on `BoardCard.item` for later phases, e.g. Phase 3 scoring).
    - **Known risk:** these Firebase URLs are on Dextrous's account, not self-hosted. Fine for now; worth revisiting (e.g. mirroring to owned storage) if that account ever changes.
 
 ### Rules reference (from the physical game's rules card)
@@ -130,8 +130,8 @@ A fully public, unauthenticated "refresh" button on the live site is discouraged
 
 ## Roadmap
 
-- **Phase 0 — Core mechanic prototype:** board with drag-and-drop zones using placeholder/generic cards, no real data yet. Single-player is enough. Goal: nail the board interaction before wiring real content.
-- **Phase 1 — Real data & art:** merge the Google Sheet and Dextrous/TTS data into clean data files (`items.json`, `events.json`, `questgivers.json`, `races.json`); swap placeholders for real card art on the same board.
+- **Phase 0 — Core mechanic prototype (done):** board with drag-and-drop zones using placeholder/generic cards, no real data yet. Single-player is enough. Goal: nail the board interaction before wiring real content.
+- **Phase 1 — Real data & art (done):** merge the Google Sheet and Dextrous/TTS data into clean data files (`items.json`, `events.json`, `questgivers.json`, `races.json`); swap placeholders for real card art on the same board. Added a new shared `race-deck` zone (players take a Race card at setup) — Phase 0 didn't have one since Races weren't part of the placeholder-card model.
 - **Phase 2 — Multiplayer:** real-time shared board state (PartyKit), public/private state split for hands, and a host/invite-link/join flow.
 - **Phase 3 — Scoring:** semi-automatic end-game score calculator using item data + quest-giver rules.
 - **Phase 4 — Polish:** animations, sound, convenience features (undo, search/filter in card piles, etc.).

@@ -1,0 +1,412 @@
+[
+	{
+		"id": 1,
+		"copies": 2,
+		"rarity": "common",
+		"name": "Lonely Path",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 2
+			}
+		],
+		"imageFront": "/cards/events/1-front.png",
+		"imageBack": "/cards/events/back-ce76be0d.png"
+	},
+	{
+		"id": 2,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Moss-Covered Ruins",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 2
+			}
+		],
+		"imageFront": "/cards/events/2-front.png",
+		"imageBack": "/cards/events/back-6b6899d9.png"
+	},
+	{
+		"id": 3,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Crowded Market",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "battle",
+				"value": 4
+			}
+		],
+		"imageFront": "/cards/events/3-front.png",
+		"imageBack": "/cards/events/back-fa7b9f77.png"
+	},
+	{
+		"id": 4,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Dungeon Echoes",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/4-front.png",
+		"imageBack": "/cards/events/back-bf847994.png"
+	},
+	{
+		"id": 5,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Witch’s Crossing",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 2
+			},
+			{
+				"type": "battle",
+				"value": 4
+			}
+		],
+		"imageFront": "/cards/events/5-front.png",
+		"imageBack": "/cards/events/back-32802ee6.png"
+	},
+	{
+		"id": 6,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Abandoned Watchtower",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "battle",
+				"value": 3
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/6-front.png",
+		"imageBack": "/cards/events/back-1d64da73.png"
+	},
+	{
+		"id": 7,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Traveling Merchant",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 3
+			},
+			{
+				"type": "battle",
+				"value": 3
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/7-front.png",
+		"imageBack": "/cards/events/back-6681c3e4.png"
+	},
+	{
+		"id": 8,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Forest Ambush",
+		"actions": [
+			{
+				"type": "shop",
+				"value": 3
+			},
+			{
+				"type": "battle",
+				"value": 2
+			}
+		],
+		"imageFront": "/cards/events/8-front.png",
+		"imageBack": "/cards/events/back-6f5b9f05.png"
+	},
+	{
+		"id": 9,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Rainy Camp",
+		"actions": [
+			{
+				"type": "shop",
+				"value": 3
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/9-front.png",
+		"imageBack": "/cards/events/back-494bedaf.png"
+	},
+	{
+		"id": 10,
+		"copies": 1,
+		"rarity": "common",
+		"name": "Village Blacksmith",
+		"actions": [
+			{
+				"type": "battle",
+				"value": 3
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/10-front.png",
+		"imageBack": "/cards/events/back-9931ecc4.png"
+	},
+	{
+		"id": 11,
+		"copies": 1,
+		"rarity": "rare",
+		"name": "Iron Warlord",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 3
+			}
+		],
+		"imageFront": "/cards/events/11-front.png",
+		"imageBack": "/cards/events/back-79c9a254.png"
+	},
+	{
+		"id": 12,
+		"copies": 1,
+		"rarity": "rare",
+		"name": "The Crimson Duelist",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "battle",
+				"value": 4
+			}
+		],
+		"imageFront": "/cards/events/12-front.png",
+		"imageBack": "/cards/events/back-df9ca2b6.png"
+	},
+	{
+		"id": 13,
+		"copies": 1,
+		"rarity": "rare",
+		"name": "The Sunken Vault",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 4
+			},
+			{
+				"type": "battle",
+				"value": 5
+			}
+		],
+		"imageFront": "/cards/events/13-front.png",
+		"imageBack": "/cards/events/back-978c55f3.png"
+	},
+	{
+		"id": 14,
+		"copies": 1,
+		"rarity": "rare",
+		"name": "The Bone Colossus",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 5
+			},
+			{
+				"type": "battle",
+				"value": 4
+			}
+		],
+		"imageFront": "/cards/events/14-front.png",
+		"imageBack": "/cards/events/back-4f10b448.png"
+	},
+	{
+		"id": 15,
+		"copies": 1,
+		"rarity": "rare",
+		"name": "The Gilded Masquerade",
+		"actions": [
+			{
+				"type": "shop",
+				"value": 3
+			},
+			{
+				"type": "battle",
+				"value": 4
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/15-front.png",
+		"imageBack": "/cards/events/back-cc17d617.png"
+	},
+	{
+		"id": 16,
+		"copies": 1,
+		"rarity": "rare",
+		"name": "The Stormforged Cliff",
+		"actions": [
+			{
+				"type": "battle",
+				"value": 4
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/16-front.png",
+		"imageBack": "/cards/events/back-bbad5e31.png"
+	},
+	{
+		"id": 17,
+		"copies": 1,
+		"rarity": "rare",
+		"name": "The Blackened Arena",
+		"actions": [
+			{
+				"type": "shop",
+				"value": 3
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/17-front.png",
+		"imageBack": "/cards/events/back-e7f4bcad.png"
+	},
+	{
+		"id": 18,
+		"copies": 1,
+		"rarity": "magic",
+		"name": "The Old Wizard",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "battle",
+				"value": 4
+			}
+		],
+		"imageFront": "/cards/events/18-front.png",
+		"imageBack": "/cards/events/back-ab293ce6.png"
+	},
+	{
+		"id": 19,
+		"copies": 1,
+		"rarity": "magic",
+		"name": "River of Fire",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "betray",
+				"value": null
+			}
+		],
+		"imageFront": "/cards/events/19-front.png",
+		"imageBack": "/cards/events/back-4bc623f6.png"
+	},
+	{
+		"id": 20,
+		"copies": 1,
+		"rarity": "magic",
+		"name": "Dragon’s Audience",
+		"actions": [
+			{
+				"type": "loot",
+				"value": null
+			},
+			{
+				"type": "shop",
+				"value": 2
+			},
+			{
+				"type": "battle",
+				"value": 6
+			}
+		],
+		"imageFront": "/cards/events/20-front.png",
+		"imageBack": "/cards/events/back-43204e91.png"
+	},
+	{
+		"id": 21,
+		"copies": 1,
+		"rarity": "magic",
+		"name": "Giant Blacksmith",
+		"actions": [
+			{
+				"type": "shop",
+				"value": 2
+			},
+			{
+				"type": "battle",
+				"value": 6
+			}
+		],
+		"imageFront": "/cards/events/21-front.png",
+		"imageBack": "/cards/events/back-3eed6579.png"
+	}
+]
