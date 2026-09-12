@@ -144,6 +144,9 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 			return { ...state, round };
 		}
 
+		case "LOAD_STATE":
+			return action.state;
+
 		case "RESET_BOARD":
 			// Reuse the current players (count + names) — a reset/new game
 			// shouldn't wipe the names entered on the homepage.

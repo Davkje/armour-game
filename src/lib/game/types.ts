@@ -96,4 +96,5 @@ export type GameAction =
 	| { type: "MOVE_TOKEN"; tokenId: BoardTokenId; zoneId: ZoneId; position: Position }
 	| { type: "REMOVE_TOKEN"; tokenId: BoardTokenId }
 	| { type: "SET_ROUND"; round: number }
-	| { type: "RESET_BOARD" };
+	| { type: "RESET_BOARD" }
+	| { type: "LOAD_STATE"; state: BoardState };

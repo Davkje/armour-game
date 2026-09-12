@@ -10,11 +10,12 @@ export default function Home() {
 	const [names, setNames] = useState<string[]>(["", "", "", ""]);
 
 	function handleStartGame() {
+		const gameId = crypto.randomUUID().slice(0, 8);
 		const params = new URLSearchParams({ players: String(playerCount) });
 		for (let i = 0; i < playerCount; i++) {
 			params.append("name", names[i].trim() || `Player ${i + 1}`);
 		}
-		router.push(`/game?${params.toString()}`);
+		router.push(`/game/${gameId}?${params.toString()}`);
 	}
 
 	if (showLocalSetup) {
