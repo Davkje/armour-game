@@ -72,6 +72,54 @@ p {
 	color: var(--foreground);
 }
 
+input[type="text"],
+input[type="number"] {
+	border: 1px solid rgb(0 0 0 / 20%);
+	border-radius: var(--radius-sm, 0.25rem);
+	padding: 0.375rem 0.5rem;
+	font-size: 0.875rem;
+	color: var(--foreground);
+	background: transparent;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+	outline: 2px solid rgb(0 0 0 / 40%);
+	outline-offset: 1px;
+}
+
+/* Hide the native up/down spinner — replaced with custom buttons where needed (see PileMenu.tsx). */
+input[type="number"] {
+	appearance: textfield;
+	-moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+	appearance: none;
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Plain black ring, filled black dot when checked — no native browser accent color. */
+input[type="radio"] {
+	appearance: none;
+	width: 1rem;
+	height: 1rem;
+	margin: 0;
+	border: 2px solid var(--foreground);
+	border-radius: 50%;
+	position: relative;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+input[type="radio"]:checked::before {
+	content: "";
+	position: absolute;
+	inset: 2px;
+	border-radius: 50%;
+	background: var(--foreground);
+}
+
 @utility btn {
 	@apply rounded-sm inline-flex items-center justify-center font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40;
 }

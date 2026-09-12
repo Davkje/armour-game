@@ -2,11 +2,84 @@
 
 import Image from "next/image";
 import { useDroppable } from "@dnd-kit/react";
+import { useState } from "react";
 import { Card } from "./Card";
+import { FindCardOverlay } from "./FindCardOverlay";
 import { GoldToken } from "./GoldToken";
+import { PileMenu } from "./PileMenu";
 import { useActivePlayerId } from "./GameProvider";
-import { CARD_WIDTH } from "@/lib/game/constants";
+import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, BoardToken, CardId, Zone as ZoneType } from "@/lib/game/types";
+
+/**
+ * Renders a zone's cards. For "stack"/"slot" piles, only the top card is
+ * ever interactive (existing rule), so there's no point mounting real
+ * `<Card>`s — and fetching every card's unique front image — for the rest of
+ * the pile: only the top 2 are rendered for real (top for interaction, the
+ * one below it pre-loaded so flipping/drawing the top card reveals it
+ * instantly instead of popping in). Anything deeper is represented by a
+ * single backing layer reusing the top card's own (already-loaded)
+ * `imageBack` — purely decorative "there's more here", no extra fetch.
+ */
+function CardPile({
+	zone,
+	cards,
+	onZoom,
+	onOpenMenu,
+}: {
+	zone: ZoneType;
+	cards: BoardCard[];
+	onZoom: (cardId: CardId) => void;
+	onOpenMenu?: () => void;
+}) {
+	const isPile = zone.layout === "stack" || zone.layout === "slot";
+
+	if (!isPile) {
+		return (
+			<>
+				{cards.map((card, i) => (
+					<Card key={card.id} card={card} zone={zone} stackIndex={i} interactive onZoom={onZoom} />
+				))}
+			</>
+		);
+	}
+
+	const visible = cards.slice(-2);
+	const topCard = cards[cards.length - 1];
+	const hasMoreBelow = cards.length > visible.length;
+
+	return (
+		<>
+			{hasMoreBelow && topCard && (
+				<div
+					aria-hidden
+					style={{ width: "var(--card-width)", height: "var(--card-height)", left: 0, top: 0 }}
+					className="absolute overflow-hidden"
+				>
+					<Image
+						src={topCard.imageBack}
+						alt=""
+						width={CARD_WIDTH}
+						height={CARD_HEIGHT}
+						className="h-full w-full object-cover"
+						draggable={false}
+					/>
+				</div>
+			)}
+			{visible.map((card, i) => (
+				<Card
+					key={card.id}
+					card={card}
+					zone={zone}
+					stackIndex={i}
+					interactive={i === visible.length - 1}
+					onZoom={onZoom}
+					onOpenPileMenu={i === visible.length - 1 ? onOpenMenu : undefined}
+				/>
+			))}
+		</>
+	);
+}
 
 export function Zone({
 	zone,
@@ -34,8 +107,11 @@ export function Zone({
 		disabled: isLockedToOtherPlayer,
 	});
 	const sorted = [...cards].sort((a, b) => a.order - b.order);
-
-	const isPile = zone.layout === "stack" || zone.layout === "slot";
+	// Cmd/Ctrl+click on a stack's top card (Card.tsx) opens this — Shuffle /
+	// Sort / Find card, scoped to this zone only.
+	const [pileMenuOpen, setPileMenuOpen] = useState(false);
+	const [findCardOpen, setFindCardOpen] = useState(false);
+	const [findCardLimit, setFindCardLimit] = useState<number | null>(null);
 
 	if (zone.layout === "slot") {
 		return (
@@ -59,16 +135,7 @@ export function Zone({
 						{zone.label}
 					</span>
 				)}
-				{sorted.map((card, i) => (
-					<Card
-						key={card.id}
-						card={card}
-						zone={zone}
-						stackIndex={i}
-						interactive={!isPile || i === sorted.length - 1}
-						onZoom={onZoom}
-					/>
-				))}
+				<CardPile zone={zone} cards={sorted} onZoom={onZoom} />
 			</div>
 		);
 	}
@@ -93,20 +160,36 @@ export function Zone({
 					zone.layout === "row" ? "flex items-center gap-2 overflow-y-hidden overflow-x-auto" : ""
 				}`}
 			>
-				{sorted.map((card, i) => (
-					<Card
-						key={card.id}
-						card={card}
-						zone={zone}
-						stackIndex={i}
-						interactive={!isPile || i === sorted.length - 1}
-						onZoom={onZoom}
-					/>
-				))}
+				<CardPile
+					zone={zone}
+					cards={sorted}
+					onZoom={onZoom}
+					onOpenMenu={zone.layout === "stack" ? () => setPileMenuOpen(true) : undefined}
+				/>
 				{tokens.map((token) => (
 					<GoldToken key={token.id} token={token} zone={zone} />
 				))}
+
+				{pileMenuOpen && (
+					<PileMenu
+						zoneId={zone.id}
+						onClose={() => setPileMenuOpen(false)}
+						onFindCard={(limit) => {
+							setPileMenuOpen(false);
+							setFindCardLimit(limit);
+							setFindCardOpen(true);
+						}}
+					/>
+				)}
 			</div>
+
+			{findCardOpen && (
+				<FindCardOverlay
+					zone={zone}
+					cards={[...(findCardLimit ? sorted.slice(-findCardLimit) : sorted)].reverse()}
+					onClose={() => setFindCardOpen(false)}
+				/>
+			)}
 		</div>
 	);
 }

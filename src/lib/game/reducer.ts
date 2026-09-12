@@ -49,6 +49,20 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 			return { ...state, cards: updatedCards };
 		}
 
+		case "SORT_ZONE": {
+			const cards = cardsInZone(state, action.zoneId);
+			const updatedCards = { ...state.cards };
+			for (const card of cards) {
+				// "desc" (top of pile = highest sheet number) is a plain sort by
+				// sortOrder; "asc" (lowest number ends up on top, drawn first)
+				// just inverts the comparison — order's sign never matters
+				// elsewhere, only its relative ordering does.
+				const order = action.direction === "asc" ? -card.sortOrder : card.sortOrder;
+				updatedCards[card.id] = { ...card, order };
+			}
+			return { ...state, cards: updatedCards };
+		}
+
 		case "FLIP_CARD": {
 			const card = state.cards[action.cardId];
 			if (!card) return state;
@@ -131,7 +145,12 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 		}
 
 		case "RESET_BOARD":
-			return buildInitialState();
+			// Reuse the current players (count + names) — a reset/new game
+			// shouldn't wipe the names entered on the homepage.
+			return buildInitialState(
+				state.players.length,
+				state.players.map((p) => p.name),
+			);
 
 		default:
 			return state;

@@ -50,6 +50,8 @@ export interface BoardCard {
 	zoneId: ZoneId;
 	position: Position;
 	order: number;
+	/** Order at creation time (matches the Sheet's row order) — never changed by shuffling, so "Sort" can restore it. */
+	sortOrder: number;
 	faceDown: boolean;
 	conditions: ConditionType[];
 	imageFront: string;
@@ -86,6 +88,7 @@ export interface BoardState {
 export type GameAction =
 	| { type: "MOVE_CARD"; cardId: CardId; zoneId: ZoneId; position: Position }
 	| { type: "SHUFFLE_ZONE"; zoneId: ZoneId }
+	| { type: "SORT_ZONE"; zoneId: ZoneId; direction: "asc" | "desc" }
 	| { type: "FLIP_CARD"; cardId: CardId }
 	| { type: "ADD_CONDITION"; cardId: CardId; condition: ConditionType }
 	| { type: "REMOVE_CONDITION"; cardId: CardId; condition: ConditionType }

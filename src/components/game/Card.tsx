@@ -38,12 +38,15 @@ export function Card({
 	stackIndex,
 	interactive,
 	onZoom,
+	onOpenPileMenu,
 }: {
 	card: BoardCard;
 	zone: Zone;
 	stackIndex: number;
 	interactive: boolean;
 	onZoom: (cardId: CardId) => void;
+	/** Cmd/Ctrl+click on a stack's top card opens its Shuffle/Sort/Find menu instead of flipping. */
+	onOpenPileMenu?: () => void;
 }) {
 	const [activePlayerId] = useActivePlayerId();
 	// A card in a zone owned by another player can't be dragged or flipped —
@@ -98,7 +101,7 @@ export function Card({
 					top: `${card.position.y * 100}%`,
 				}
 			: zone.layout === "stack"
-				? { position: "absolute", left: stackIndex * 2, top: stackIndex * -2 }
+				? { position: "absolute", left: 0, top: (stackIndex + 1) * -4 }
 				: zone.layout === "slot"
 					? { position: "absolute", left: 0, top: 0 }
 					: { position: "relative" };
@@ -109,15 +112,17 @@ export function Card({
 			type="button"
 			onClick={
 				canInteract && zone.kind !== "hand"
-					? () => dispatch({ type: "FLIP_CARD", cardId: card.id })
+					? (e) => {
+							if ((e.metaKey || e.ctrlKey) && zone.layout === "stack" && onOpenPileMenu) {
+								onOpenPileMenu();
+								return;
+							}
+							dispatch({ type: "FLIP_CARD", cardId: card.id });
+						}
 					: undefined
 			}
 			onContextMenu={(e) => {
 				e.preventDefault();
-				// Zoom stays available even for another player's zone — it's a
-				// read-only inspect, not a manipulation. Another player's hand
-				// never renders actual Card components (PlayerSection shows just a
-				// count instead), so this never exposes hidden hand cards.
 				if (interactive) onZoom(card.id);
 			}}
 			style={{

@@ -35,12 +35,14 @@ function buildRealCards(): Record<string, BoardCard> {
 	for (const item of itemsData) {
 		const zoneId = `item-deck-${item.rarity}`;
 		const id = `item-${item.id}`;
+		const order = nextOrder(zoneId);
 		cards[id] = {
 			id,
 			label: item.name,
 			zoneId,
 			position: { x: 0, y: 0 },
-			order: nextOrder(zoneId),
+			order,
+			sortOrder: order,
 			faceDown: true,
 			conditions: [],
 			imageFront: item.imageFront,
@@ -60,13 +62,17 @@ function buildRealCards(): Record<string, BoardCard> {
 	for (const event of eventsData) {
 		for (let copy = 0; copy < event.copies; copy++) {
 			const id = `event-${event.id}-${copy}`;
+			const order = nextOrder("event-deck");
 			cards[id] = {
 				id,
 				label: event.name,
 				zoneId: "event-deck",
 				position: { x: 0, y: 0 },
-				order: nextOrder("event-deck"),
-				faceDown: true,
+				order,
+				sortOrder: order,
+				// Event cards are read aloud when drawn — the deck sits face-up
+				// (unlike Items/Quests/Races, which stay hidden until drawn).
+				faceDown: false,
 				conditions: [],
 				imageFront: event.imageFront,
 				imageBack: event.imageBack,
@@ -76,12 +82,14 @@ function buildRealCards(): Record<string, BoardCard> {
 
 	for (const quest of questGiversData) {
 		const id = `quest-${quest.id}`;
+		const order = nextOrder("quest-deck");
 		cards[id] = {
 			id,
 			label: quest.nickname,
 			zoneId: "quest-deck",
 			position: { x: 0, y: 0 },
-			order: nextOrder("quest-deck"),
+			order,
+			sortOrder: order,
 			faceDown: true,
 			conditions: [],
 			imageFront: quest.imageFront,
@@ -91,12 +99,14 @@ function buildRealCards(): Record<string, BoardCard> {
 
 	for (const race of racesData) {
 		const id = `race-${race.id}`;
+		const order = nextOrder("race-deck");
 		cards[id] = {
 			id,
 			label: race.nickname,
 			zoneId: "race-deck",
 			position: { x: 0, y: 0 },
-			order: nextOrder("race-deck"),
+			order,
+			sortOrder: order,
 			faceDown: true,
 			conditions: [],
 			imageFront: race.imageFront,

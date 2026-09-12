@@ -34,7 +34,7 @@ export function CardZoomOverlay({ card, onClose }: { card: BoardCard; onClose: (
 					draggable={false}
 				/>
 
-				{(card.item || card.conditions.length > 0) && (
+				{!card.faceDown && (card.item || card.conditions.length > 0) && (
 					<div className="flex max-h-[85vh] w-xl flex-col gap-4">
 						{card.item && (
 							<div className="flex flex-col gap-2 overflow-y-auto rounded-lg bg-background p-3 border-2 border-black">
