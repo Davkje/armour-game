@@ -22,7 +22,13 @@ export default function Home() {
 		return (
 			<div className="flex flex-1 flex-col items-center justify-center gap-8">
 				<h1 className="font-semibold">Armour Game</h1>
-				<div className="flex flex-col items-center gap-3">
+				<form
+					className="flex flex-col items-center gap-3"
+					onSubmit={(e) => {
+						e.preventDefault();
+						handleStartGame();
+					}}
+				>
 					<span className="text-xl">Number of players</span>
 					<div className="flex w-full gap-2 text-lg">
 						{[2, 3, 4].map((count) => (
@@ -50,11 +56,12 @@ export default function Home() {
 								placeholder={`Player ${i + 1}`}
 								maxLength={20}
 								className="w-full rounded-lg border border-black/20 px-4 py-2"
+								required
 							/>
 						))}
 					</div>
 					<div className="flex w-full flex-col gap-2">
-						<button type="button" onClick={handleStartGame} className="btn-primary px-6 py-3">
+						<button type="submit" className="btn-primary px-6 py-3">
 							Start Game
 						</button>
 						<button
@@ -65,7 +72,7 @@ export default function Home() {
 							Back
 						</button>
 					</div>
-				</div>
+				</form>
 			</div>
 		);
 	}

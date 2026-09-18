@@ -34,6 +34,8 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 		}
 
 		case "SHUFFLE_ZONE": {
+			const zone = state.zones[action.zoneId];
+			const faceDown = zone?.faceDownDefault ?? true;
 			const cards = cardsInZone(state, action.zoneId);
 			const shuffledOrders = cards.map((_, i) => i);
 			for (let i = shuffledOrders.length - 1; i > 0; i--) {
@@ -43,13 +45,19 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 
 			const updatedCards = { ...state.cards };
 			cards.forEach((card, i) => {
-				updatedCards[card.id] = { ...card, order: shuffledOrders[i] };
+				// A shuffle mixes every card back into an even pile — reset
+				// faceDown to the zone's default too, not just the order,
+				// otherwise a card someone flipped up while it sat in the stack
+				// would get shuffled in and could resurface face-up mid-pile.
+				updatedCards[card.id] = { ...card, order: shuffledOrders[i], faceDown };
 			});
 
 			return { ...state, cards: updatedCards };
 		}
 
 		case "SORT_ZONE": {
+			const zone = state.zones[action.zoneId];
+			const faceDown = zone?.faceDownDefault ?? true;
 			const cards = cardsInZone(state, action.zoneId);
 			const updatedCards = { ...state.cards };
 			for (const card of cards) {
@@ -58,7 +66,9 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 				// just inverts the comparison — order's sign never matters
 				// elsewhere, only its relative ordering does.
 				const order = action.direction === "asc" ? -card.sortOrder : card.sortOrder;
-				updatedCards[card.id] = { ...card, order };
+				// Same reasoning as SHUFFLE_ZONE — re-piling the whole zone
+				// should reset every card back to the zone's normal face state.
+				updatedCards[card.id] = { ...card, order, faceDown };
 			}
 			return { ...state, cards: updatedCards };
 		}

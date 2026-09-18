@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "data:sync": "node scripts/sync-sheet-data.mjs",
-    "data:art": "node scripts/extract-card-art.mjs"
+    "data:art": "node scripts/extract-card-art.mjs",
+    "data:refresh": "yarn data:art && yarn data:sync"
   },
   "dependencies": {
     "@dnd-kit/abstract": "^0.5.0",

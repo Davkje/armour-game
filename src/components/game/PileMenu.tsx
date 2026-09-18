@@ -8,10 +8,14 @@ import { RiArrowDownSFill, RiArrowUpSFill } from "@remixicon/react";
 /** Cmd/Ctrl+click a stack's top card to open this — see Card.tsx. */
 export function PileMenu({
 	zoneId,
+	zoneLabel,
+	cardCount,
 	onClose,
 	onFindCard,
 }: {
 	zoneId: ZoneId;
+	zoneLabel: string;
+	cardCount: number;
 	onClose: () => void;
 	/** null = show the whole pile, otherwise only its top N cards. */
 	onFindCard: (limit: number | null) => void;
@@ -44,9 +48,17 @@ export function PileMenu({
 	const containerClassName =
 		"absolute bottom-[calc(100%+1rem)] left-0 z-20 flex w-max flex-col gap-2 rounded-lg border-2 border-black bg-background p-2 shadow-xl";
 
+	const header = (
+		<div className="text-xs flex gap-1 justify-between font-semibold tracking-widest uppercase">
+			<span>{zoneLabel}</span>
+			<span>{cardCount}</span>
+		</div>
+	);
+
 	if (view === "find") {
 		return (
 			<div ref={containerRef} className={containerClassName}>
+				{header}
 				<label className="flex items-center gap-2 text-md">
 					<input type="radio" checked={limitAll} onChange={() => setLimitAll(true)} />
 					All
@@ -111,6 +123,7 @@ export function PileMenu({
 
 	return (
 		<div ref={containerRef} className={containerClassName}>
+			{header}
 			<button
 				type="button"
 				className="btn-secondary text-md"

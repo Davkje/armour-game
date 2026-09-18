@@ -37,6 +37,8 @@ export interface Zone {
 	ownerId?: PlayerId;
 	/** Background icon shown when a "slot" zone is empty (e.g. "/icon_head.svg"). */
 	icon?: string;
+	/** What a shuffle resets every card in this zone back to (default true) — false for the Event deck, which stays face-up. */
+	faceDownDefault?: boolean;
 }
 
 export interface Position {

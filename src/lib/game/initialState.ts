@@ -213,7 +213,13 @@ export function buildInitialState(requestedPlayerCount = 2, playerNames?: string
 	}));
 
 	const zones: Record<ZoneId, Zone> = {
-		"event-deck": { id: "event-deck", kind: "deck", layout: "stack", label: "Event Deck" },
+		"event-deck": {
+			id: "event-deck",
+			kind: "deck",
+			layout: "stack",
+			label: "Event Deck",
+			faceDownDefault: false,
+		},
 		"item-deck-common": {
 			id: "item-deck-common",
 			kind: "deck",

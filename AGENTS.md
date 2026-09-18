@@ -26,11 +26,11 @@ This is the core architectural decision. The app is a **virtual tabletop** (like
 - End-game scoring is **semi-automatic**: players mark which items are equipped, the app calculates score from item data + quest-giver rules (not fully automatic, since quest-giver rules are partly free-text/flavorful).
 - This is deliberate: locking game rules into code too early makes it expensive to iterate on rule ideas, and the rules are still evolving.
 
-### Note: per-zone/deck setup config (not yet built)
+### Note: per-zone/deck setup config
 
 Bug found in Phase 0: moving a card between zones was forcibly flipping it face-up (except in decks) — fixed so `MOVE_CARD` never changes which side faces up; only an explicit flip action does. No implicit "reveal on placement" behavior.
 
-This raised a related idea worth remembering: once Phase 1 introduces multiple real deck types (items, events, etc.), they'll likely need different **setup** behavior — e.g. starts face up/down, starts shuffled or not. Since zones are already plain data (`Zone` records in `src/lib/game/`, not components), the natural extension is optional fields on `Zone` (e.g. `dealFaceDown?`, `startShuffled?`) read once in `buildInitialState()` — still just setup, not a runtime rule, so it stays consistent with the sandbox philosophy above. Deliberately not building this yet — wait until Phase 1's real deck types show what actually needs to vary, rather than guessing now.
+This raised a related idea: once Phase 1 introduced multiple real deck types (items, events, etc.), they'd need different **setup** behavior — e.g. starts face up/down. Landed as `Zone.faceDownDefault?: boolean` (default `true`, `false` for the Event deck) — read once in `buildInitialState()` to set each card's initial `faceDown`, and re-applied by `SHUFFLE_ZONE`/`SORT_ZONE` in `reducer.ts`. That second part mattered in practice: a card someone had flipped face-up while it sat in a stack (e.g. peeking at the top card) would otherwise get shuffled into a random spot and stay face-up there — re-piling the whole zone now resets every card back to the zone's normal face state, not just their order. Still just setup/reset data, not a runtime rule, so it stays consistent with the sandbox philosophy above.
 
 ### Note: condition/status tokens
 
@@ -127,6 +127,14 @@ Recommended path, simplest first:
 4. **Only if truly needed:** a real backend (Supabase/Firestore) with push-sync from a Sheets trigger, enabling live mid-session data edits. Not justified until there's a concrete need to change card stats while a playtest is in progress.
 
 A fully public, unauthenticated "refresh" button on the live site is discouraged (low risk, but unnecessary attack surface) — the Sheets-trigger approach above avoids needing one entirely.
+
+### How to actually update a card today
+
+Currently on tier 1 above — a manual local step, then commit + push. Which command(s) to run depends on what changed:
+
+- **Just stats/text** (name, rarity, cost, bonus, feature text, event/quest-giver copy, etc.) — edit the Google Sheet, then run `yarn data:sync`. The Sheet's published CSV URLs are already baked into `scripts/sync-sheet-data.mjs` and don't expire or need re-pasting — editing the Sheet is the entire update.
+- **Card art changed** (redesigned in Dextrous, new export) — the art comes from a point-in-time export file (`data/dextrous-export.json`), not a live link, so: re-export from Dextrous (Export → Tabletop Simulator → download), overwrite `data/dextrous-export.json` with the new file, then run `yarn data:refresh` (runs `data:art` then `data:sync` in the right order — art extraction writes each deck's `backs.json` manifest, which `data:sync` needs to wire up `imageBack` correctly, so art must run first).
+- Either way: commit the resulting changes under `src/data/*.json` (and `public/cards/**` + `data/dextrous-export.json` if art changed), push, Vercel deploys.
 
 ## Roadmap
 

@@ -173,6 +173,8 @@ export function Zone({
 				{pileMenuOpen && (
 					<PileMenu
 						zoneId={zone.id}
+						zoneLabel={zone.label}
+						cardCount={sorted.length}
 						onClose={() => setPileMenuOpen(false)}
 						onFindCard={(limit) => {
 							setPileMenuOpen(false);
