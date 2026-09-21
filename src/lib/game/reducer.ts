@@ -10,6 +10,22 @@ function maxOrderInZone(state: BoardState, zoneId: ZoneId) {
 	return cardsInZone(state, zoneId).reduce((max, card) => Math.max(max, card.order), -1);
 }
 
+/**
+ * Entropy for a SHUFFLE_ZONE action, generated at the dispatch call site (not
+ * inside the reducer) so `gameReducer` stays a pure function of its inputs —
+ * needed so it can run identically server-side once Phase 2 makes the server
+ * authoritative. 64 is comfortably more than any deck in this game ever
+ * holds, and the reducer still uses its OWN live `cardsInZone` to know how
+ * many of these values it actually needs — the caller never has to know the
+ * zone's exact current size, only "enough" randomness, which matters for
+ * call sites like Toolbar.tsx's "New Game" (RESET_BOARD immediately followed
+ * by a SHUFFLE_ZONE per starting deck — the component's own state is still
+ * stale at that point, since dispatches haven't landed yet).
+ */
+export function createShuffleEntropy(): number[] {
+	return Array.from({ length: 64 }, () => Math.random());
+}
+
 export function gameReducer(state: BoardState, action: GameAction): BoardState {
 	switch (action.type) {
 		case "MOVE_CARD": {
@@ -38,8 +54,9 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 			const faceDown = zone?.faceDownDefault ?? true;
 			const cards = cardsInZone(state, action.zoneId);
 			const shuffledOrders = cards.map((_, i) => i);
+			let entropyIndex = 0;
 			for (let i = shuffledOrders.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
+				const j = Math.floor(action.randomValues[entropyIndex++] * (i + 1));
 				[shuffledOrders[i], shuffledOrders[j]] = [shuffledOrders[j], shuffledOrders[i]];
 			}
 
@@ -117,7 +134,7 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 			const zone = state.zones[action.zoneId];
 			if (!zone || zone.layout !== "free") return state;
 
-			const id = `token-${crypto.randomUUID()}`;
+			const id = action.tokenId;
 			return {
 				...state,
 				tokens: {
@@ -156,6 +173,14 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 
 		case "LOAD_STATE":
 			return action.state;
+
+		case "RENAME_PLAYER":
+			return {
+				...state,
+				players: state.players.map((p) =>
+					p.id === action.playerId ? { ...p, name: action.name } : p,
+				),
+			};
 
 		case "RESET_BOARD":
 			// Reuse the current players (count + names) — a reset/new game

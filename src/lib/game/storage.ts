@@ -1,7 +1,8 @@
-import type { BoardState } from "./types";
+import type { BoardState, PlayerId } from "./types";
 
 const STORAGE_PREFIX = "armour-game:";
 const ACTIVE_PLAYER_PREFIX = "armour-game:active-player:";
+const ONLINE_PLAYER_PREFIX = "armour-game:online-player:";
 
 /**
  * Local-only save/resume so an accidental reload doesn't wipe a game — keyed
@@ -44,5 +45,29 @@ export function saveActivePlayerId(gameId: string, playerId: string) {
 		localStorage.setItem(ACTIVE_PLAYER_PREFIX + gameId, playerId);
 	} catch {
 		// Not critical — worst case a reload resets whose turn it visually is.
+	}
+}
+
+/**
+ * Online mode: which seat this browser claimed in a given room, so a
+ * refresh (or reopening the tab within the server's disconnect grace period
+ * — see party/index.ts) can silently reclaim the same seat instead of
+ * prompting for a name again. Deliberately localStorage, not sessionStorage
+ * — this needs to survive a closed tab, not just a refresh, so someone can
+ * pick their game back up later from a fresh tab.
+ */
+export function loadOnlinePlayerId(gameId: string): PlayerId | null {
+	try {
+		return localStorage.getItem(ONLINE_PLAYER_PREFIX + gameId);
+	} catch {
+		return null;
+	}
+}
+
+export function saveOnlinePlayerId(gameId: string, playerId: PlayerId) {
+	try {
+		localStorage.setItem(ONLINE_PLAYER_PREFIX + gameId, playerId);
+	} catch {
+		// Not critical — worst case a reload prompts for your name again.
 	}
 }

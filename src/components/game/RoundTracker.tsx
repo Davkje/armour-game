@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { useGameDispatch, useGameState } from "./GameProvider";
+import { useGameDispatch, useGameState } from "./GameContext";
 import { MAX_ROUND, MIN_ROUND } from "@/lib/game/constants";
 import { RiArrowDownSFill, RiArrowUpSFill } from "@remixicon/react";
 

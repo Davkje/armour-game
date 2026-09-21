@@ -1,15 +1,23 @@
 "use client";
 
-import { useActivePlayerId, useGameState } from "./GameProvider";
+import { useActivePlayerId, useGameMode, useGameState } from "./GameContext";
 
 // Fixed corner button, same family as Menu/Token menu — switches which
 // player's board is the active, interactive one (see AGENTS.md's note on
 // local hotseat testing). Purely a local view switch, not game state.
+//
+// Deliberately the one place in the UI that branches on game mode: in Online
+// mode `activePlayerId` is fixed to whichever player this connection is
+// bound to (assigned once at join) rather than a manual hotseat toggle, so
+// there's nothing for this button to do there. This isn't a precedent for
+// adding mode checks elsewhere — every other component (Board/Zone/Card/...)
+// stays fully mode-agnostic; this one is inherently local-only by design.
 export function PlayerSwitcher() {
 	const state = useGameState();
 	const [activePlayerId, setActivePlayerId] = useActivePlayerId();
+	const mode = useGameMode();
 
-	if (state.players.length <= 1) return null;
+	if (mode === "online" || state.players.length <= 1) return null;
 
 	const activePlayer = state.players.find((p) => p.id === activePlayerId) ?? state.players[0];
 

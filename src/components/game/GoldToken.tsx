@@ -1,7 +1,7 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/react";
-import { useActivePlayerId, useGameDispatch } from "./GameProvider";
+import { useActivePlayerId, useGameDispatch } from "./GameContext";
 import type { BoardToken, Zone } from "@/lib/game/types";
 
 export function GoldToken({ token, zone }: { token: BoardToken; zone: Zone }) {

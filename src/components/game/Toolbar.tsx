@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useGameDispatch } from "./GameProvider";
+import { useGameDispatch } from "./GameContext";
 import { STARTING_DECK_ZONE_IDS } from "@/lib/game/initialState";
+import { createShuffleEntropy } from "@/lib/game/reducer";
 
 type PendingAction = "new-game" | "reset-board" | "exit-game" | null;
 
@@ -21,7 +22,7 @@ export function Toolbar() {
 	function handleNewGame() {
 		dispatch({ type: "RESET_BOARD" });
 		for (const zoneId of STARTING_DECK_ZONE_IDS) {
-			dispatch({ type: "SHUFFLE_ZONE", zoneId });
+			dispatch({ type: "SHUFFLE_ZONE", zoneId, randomValues: createShuffleEntropy() });
 		}
 		setPending(null);
 	}

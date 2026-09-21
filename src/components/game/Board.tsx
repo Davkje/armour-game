@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { CardZoomOverlay } from "./CardZoomOverlay";
-import { useActivePlayerId, useGameDispatch, useGameState } from "./GameProvider";
+import { useActivePlayerId, useGameDispatch, useGameState } from "./GameContext";
 import { PlayerSection } from "./PlayerSection";
 import { TokenMenu } from "./TokenMenu";
 import { Zone } from "./Zone";
@@ -78,7 +78,8 @@ export function Board() {
 			const position = freeZonePosition(event);
 			if (!position) return;
 			const tokenType = sourceId.slice("spawn-token:".length) as FreeTokenType;
-			dispatch({ type: "PLACE_TOKEN", tokenType, zoneId: targetId, position });
+			const tokenId = `token-${crypto.randomUUID()}`;
+			dispatch({ type: "PLACE_TOKEN", tokenId, tokenType, zoneId: targetId, position });
 			return;
 		}
 

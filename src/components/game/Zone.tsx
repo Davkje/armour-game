@@ -7,7 +7,8 @@ import { Card } from "./Card";
 import { FindCardOverlay } from "./FindCardOverlay";
 import { GoldToken } from "./GoldToken";
 import { PileMenu } from "./PileMenu";
-import { useActivePlayerId } from "./GameProvider";
+import { useActivePlayerId, useCursors } from "./GameContext";
+import { ZoneCursors } from "./ZoneCursors";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, BoardToken, CardId, Zone as ZoneType } from "@/lib/game/types";
 
@@ -113,10 +114,24 @@ export function Zone({
 	const [findCardOpen, setFindCardOpen] = useState(false);
 	const [findCardLimit, setFindCardLimit] = useState<number | null>(null);
 
+	const { sendCursor } = useCursors();
+	// Reports our own pointer as a fraction of THIS zone's own box — see
+	// ZoneCursors.tsx/protocol.ts for why it's zone-relative rather than
+	// page-relative. A no-op in Local mode.
+	function handlePointerMove(event: React.PointerEvent<HTMLElement>) {
+		const rect = event.currentTarget.getBoundingClientRect();
+		if (rect.width === 0 || rect.height === 0) return;
+		sendCursor(zone.id, {
+			x: (event.clientX - rect.left) / rect.width,
+			y: (event.clientY - rect.top) / rect.height,
+		});
+	}
+
 	if (zone.layout === "slot") {
 		return (
 			<div
 				ref={ref}
+				onPointerMove={handlePointerMove}
 				style={{ width: "var(--card-width)", height: "var(--card-height)" }}
 				className={`relative place-self-center justify-self-center rounded-sm ${
 					isDropTarget ? "bg-black/10" : "bg-black/4"
@@ -136,6 +151,7 @@ export function Zone({
 					</span>
 				)}
 				<CardPile zone={zone} cards={sorted} onZoom={onZoom} />
+				<ZoneCursors zoneId={zone.id} />
 			</div>
 		);
 	}
@@ -152,6 +168,7 @@ export function Zone({
 
 			<div
 				ref={ref}
+				onPointerMove={handlePointerMove}
 				style={{
 					minHeight: "var(--card-height)",
 					width: zone.layout === "stack" ? "var(--card-width)" : undefined,
@@ -183,6 +200,7 @@ export function Zone({
 						}}
 					/>
 				)}
+				<ZoneCursors zoneId={zone.id} />
 			</div>
 
 			{findCardOpen && (

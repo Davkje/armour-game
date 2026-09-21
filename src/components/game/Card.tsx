@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
-import { useActivePlayerId, useGameDispatch } from "./GameProvider";
+import { useActivePlayerId, useGameDispatch } from "./GameContext";
 import { CONDITIONS } from "@/lib/game/conditions";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, CardId, Zone } from "@/lib/game/types";
@@ -91,7 +91,25 @@ export function Card({
 		wasDragging.current = isDragging;
 	}, [isDragging]);
 
-	const style: React.CSSProperties =
+	// Skipped while this card is the one actively being dragged/settling
+	// locally — dnd-kit's own drag transform and drop-animation already own
+	// its motion then, and a competing left/top transition at the same time
+	// would fight it. For every other position change (another player's move
+	// arriving over the network, or a local action that isn't a drag, e.g.
+	// drawing a card), this turns what would otherwise be an instant jump
+	// into a smooth glide.
+	const skipPositionTransition = isDragging || isSettling;
+
+	// This positioning (incl. the glide transition) lives on a WRAPPER, never
+	// on the draggable button itself. dnd-kit's own drag-feedback plugin reads
+	// the dragged element's *computed* `transition` at pickup and copies it
+	// verbatim into its own fixed-position drag overlay — if that element had
+	// our left/top transition active, dnd-kit would carry it into a
+	// left/top → viewport-fixed coordinate jump, animating the pickup in from
+	// a wildly wrong spot. Keeping the button itself always `transition`-free
+	// (it only ever fills its wrapper) means dnd-kit never has anything to
+	// leak, regardless of what this wrapper is doing.
+	const wrapperStyle: React.CSSProperties =
 		zone.layout === "free"
 			? // Percentages recompute automatically on resize (no JS needed) —
 				// card.position is a 0-1 fraction of the zone's own size.
@@ -99,6 +117,7 @@ export function Card({
 					position: "absolute",
 					left: `${card.position.x * 100}%`,
 					top: `${card.position.y * 100}%`,
+					transition: skipPositionTransition ? undefined : "left 250ms ease, top 250ms ease",
 				}
 			: zone.layout === "stack"
 				? { position: "absolute", left: 0, top: (stackIndex + 1) * -4 }
@@ -107,104 +126,108 @@ export function Card({
 					: { position: "relative" };
 
 	return (
-		<button
-			ref={mergeRefs(dragRef, dropRef)}
-			type="button"
-			onClick={
-				canInteract && zone.kind !== "hand"
-					? (e) => {
-							if ((e.metaKey || e.ctrlKey) && zone.layout === "stack" && onOpenPileMenu) {
-								onOpenPileMenu();
-								return;
-							}
-							dispatch({ type: "FLIP_CARD", cardId: card.id });
-						}
-					: undefined
-			}
-			onContextMenu={(e) => {
-				e.preventDefault();
-				if (interactive) onZoom(card.id);
-			}}
+		<div
 			style={{
-				...style,
-				touchAction: "none",
+				...wrapperStyle,
 				width: "var(--card-width)",
 				height: "var(--card-height)",
 			}}
-			className={`z-10 block shrink-0 select-none ${canInteract ? "cursor-grab" : "cursor-default"}`}
+			className="z-10 shrink-0"
 		>
-			<div
-				style={{
-					perspective: 800,
-					animation: isLifting
-						? `card-lift ${LIFT_DURATION_MS}ms ease-out forwards`
-						: isDragging
-							? "card-wiggle 1s ease-in-out infinite"
-							: isSettling
-								? `card-settle ${SETTLE_DURATION_MS}ms ease-out forwards`
-								: undefined,
+			<button
+				ref={mergeRefs(dragRef, dropRef)}
+				type="button"
+				onClick={
+					canInteract && zone.kind !== "hand"
+						? (e) => {
+								if ((e.metaKey || e.ctrlKey) && zone.layout === "stack" && onOpenPileMenu) {
+									onOpenPileMenu();
+									return;
+								}
+								dispatch({ type: "FLIP_CARD", cardId: card.id });
+							}
+						: undefined
+				}
+				onContextMenu={(e) => {
+					e.preventDefault();
+					if (interactive) onZoom(card.id);
 				}}
-				className={`relative h-full w-full rounded-sm shadow-sm transition-shadow duration-200 ease-out ${
-					isLifting || isDragging || isSettling ? "shadow-xl" : ""
-				} ${isDropTarget ? "ring-2 ring-yellow-400" : ""}`}
+				style={{ touchAction: "none" }}
+				className={`block h-full w-full select-none ${canInteract ? "cursor-grab" : "cursor-default"}`}
 			>
 				<div
 					style={{
-						transformStyle: "preserve-3d",
-						transform: `rotateY(${card.faceDown ? 180 : 0}deg)`,
-						transition: `transform ${FLIP_DURATION_MS}ms ease`,
+						perspective: 800,
+						animation: isLifting
+							? `card-lift ${LIFT_DURATION_MS}ms ease-out forwards`
+							: isDragging
+								? "card-wiggle 1s ease-in-out infinite"
+								: isSettling
+									? `card-settle ${SETTLE_DURATION_MS}ms ease-out forwards`
+									: undefined,
 					}}
-					className="relative h-full w-full"
+					className={`relative h-full w-full rounded-sm shadow-sm transition-shadow duration-200 ease-out ${
+						isLifting || isDragging || isSettling ? "shadow-xl" : ""
+					} ${isDropTarget ? "ring-2 ring-yellow-400" : ""}`}
 				>
-					<Image
-						src={card.imageFront}
-						alt={card.label}
-						width={CARD_WIDTH}
-						height={CARD_HEIGHT}
-						quality={95}
-						style={backfaceHidden}
-						className="absolute inset-0 h-full w-full rounded-sm object-cover"
-						draggable={false}
-					/>
-					<Image
-						src={card.imageBack}
-						alt="Face-down card"
-						width={CARD_WIDTH}
-						height={CARD_HEIGHT}
-						quality={95}
-						style={{ ...backfaceHidden, transform: "rotateY(180deg)" }}
-						className="absolute inset-0 h-full w-full rounded-sm object-cover"
-						draggable={false}
-					/>
-				</div>
-
-				{/*
-				 * Conditions
-				 */}
-				{card.conditions.length > 0 && (
-					<div className="pointer-events-none absolute inset-x-0 top-12 z-10 flex justify-center gap-1">
-						{card.conditions.map((condition) => {
-							const meta = CONDITIONS.find((c) => c.id === condition);
-							return (
-								<span
-									key={condition}
-									role="button"
-									tabIndex={0}
-									title={`${meta?.name} — click to remove`}
-									onClick={(e) => {
-										e.stopPropagation();
-										if (canInteract) {
-											dispatch({ type: "REMOVE_CONDITION", cardId: card.id, condition });
-										}
-									}}
-									style={{ backgroundColor: meta ? `var(${meta.color})` : undefined }}
-									className={`pointer-events-auto h-2 w-2 rounded-full border border-black/30 ${canInteract ? "cursor-pointer" : "cursor-default"}`}
-								/>
-							);
-						})}
+					<div
+						style={{
+							transformStyle: "preserve-3d",
+							transform: `rotateY(${card.faceDown ? 180 : 0}deg)`,
+							transition: `transform ${FLIP_DURATION_MS}ms ease`,
+						}}
+						className="relative h-full w-full"
+					>
+						<Image
+							src={card.imageFront}
+							alt={card.label}
+							width={CARD_WIDTH}
+							height={CARD_HEIGHT}
+							quality={95}
+							style={backfaceHidden}
+							className="absolute inset-0 h-full w-full rounded-sm object-cover"
+							draggable={false}
+						/>
+						<Image
+							src={card.imageBack}
+							alt="Face-down card"
+							width={CARD_WIDTH}
+							height={CARD_HEIGHT}
+							quality={95}
+							style={{ ...backfaceHidden, transform: "rotateY(180deg)" }}
+							className="absolute inset-0 h-full w-full rounded-sm object-cover"
+							draggable={false}
+						/>
 					</div>
-				)}
-			</div>
-		</button>
+
+					{/*
+					 * Conditions
+					 */}
+					{card.conditions.length > 0 && (
+						<div className="pointer-events-none absolute inset-x-0 top-12 z-10 flex justify-center gap-1">
+							{card.conditions.map((condition) => {
+								const meta = CONDITIONS.find((c) => c.id === condition);
+								return (
+									<span
+										key={condition}
+										role="button"
+										tabIndex={0}
+										title={`${meta?.name} — click to remove`}
+										onClick={(e) => {
+											e.stopPropagation();
+											if (canInteract) {
+												dispatch({ type: "REMOVE_CONDITION", cardId: card.id, condition });
+											}
+										}}
+										style={{ backgroundColor: meta ? `var(${meta.color})` : undefined }}
+										className={`pointer-events-auto h-2 w-2 rounded-full border border-black/30 ${canInteract ? "cursor-pointer" : "cursor-default"}`}
+									/>
+								);
+							})}
+						</div>
+					)}
+				</div>
+			</button>
+		</div>
 	);
 }

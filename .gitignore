@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# partykit — local dev's on-disk emulation of each room's Durable Object
+# storage (see `yarn party:dev`); this is runtime data, not source.
+.partykit/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

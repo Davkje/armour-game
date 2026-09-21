@@ -1,26 +1,19 @@
 "use client";
 
-import {
-	createContext,
-	useContext,
-	useEffect,
-	useReducer,
-	useRef,
-	useState,
-	type Dispatch,
-	type ReactNode,
-} from "react";
+import { useEffect, useReducer, useRef, useState, type ReactNode } from "react";
 import { buildInitialState } from "@/lib/game/initialState";
 import { gameReducer } from "@/lib/game/reducer";
 import { loadActivePlayerId, loadGameState, saveActivePlayerId, saveGameState } from "@/lib/game/storage";
-import type { BoardState, GameAction, PlayerId } from "@/lib/game/types";
+import type { PlayerId } from "@/lib/game/types";
+import { ActivePlayerContext, GameDispatchContext, GameStateContext } from "./GameContext";
 
-const GameStateContext = createContext<BoardState | null>(null);
-const GameDispatchContext = createContext<Dispatch<GameAction> | null>(null);
-const ActivePlayerContext = createContext<[PlayerId | undefined, (id: PlayerId) => void] | null>(
-	null,
-);
-
+/**
+ * Local (hotseat) mode's implementation of the shared GameContext interface —
+ * a plain useReducer, persisted to this browser's own localStorage. See
+ * OnlineGameProvider.tsx for the PartyKit-backed sibling that populates the
+ * exact same contexts. GameModeContext isn't provided here — its default
+ * ("local") from GameContext.tsx is already correct.
+ */
 export function GameProvider({
 	children,
 	gameId,
@@ -85,22 +78,4 @@ export function GameProvider({
 			</GameDispatchContext.Provider>
 		</GameStateContext.Provider>
 	);
-}
-
-export function useGameState() {
-	const state = useContext(GameStateContext);
-	if (!state) throw new Error("useGameState must be used within a GameProvider");
-	return state;
-}
-
-export function useGameDispatch() {
-	const dispatch = useContext(GameDispatchContext);
-	if (!dispatch) throw new Error("useGameDispatch must be used within a GameProvider");
-	return dispatch;
-}
-
-export function useActivePlayerId() {
-	const context = useContext(ActivePlayerContext);
-	if (!context) throw new Error("useActivePlayerId must be used within a GameProvider");
-	return context;
 }

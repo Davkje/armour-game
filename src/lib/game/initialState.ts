@@ -1,7 +1,11 @@
-import eventsData from "@/data/events.json";
-import itemsData from "@/data/items.json";
-import questGiversData from "@/data/questgivers.json";
-import racesData from "@/data/races.json";
+// Relative imports (not the "@/*" alias) — this file is also bundled by
+// PartyKit's own esbuild pipeline (party/index.ts imports buildInitialState
+// for the room's authoritative state), which doesn't know about Next.js's
+// tsconfig path alias.
+import eventsData from "../../data/events.json";
+import itemsData from "../../data/items.json";
+import questGiversData from "../../data/questgivers.json";
+import racesData from "../../data/races.json";
 import type { BoardCard, BoardState, ItemRarity, Player, PlayerId, Zone, ZoneId } from "./types";
 
 /** The 6 shared decks reshuffled by "New Game" — see Toolbar.tsx. */

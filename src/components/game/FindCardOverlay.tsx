@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect } from "react";
-import { useActivePlayerId, useGameDispatch } from "./GameProvider";
+import { useActivePlayerId, useGameDispatch } from "./GameContext";
 import { CARD_HEIGHT, CARD_WIDTH } from "@/lib/game/constants";
 import type { BoardCard, Zone } from "@/lib/game/types";
 import { RiCloseLine } from "@remixicon/react";

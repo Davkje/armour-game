@@ -5,26 +5,41 @@ import { useSearchParams } from "next/navigation";
 import { Board } from "./Board";
 import { GameProvider } from "./GameProvider";
 import { MenuDrawer } from "./MenuDrawer";
+import { OnlineGameProvider } from "./OnlineGameProvider";
 import { PlayerSwitcher } from "./PlayerSwitcher";
 import { RoundTracker } from "./RoundTracker";
 
+const GAME_TREE = (
+	<>
+		<div className="flex flex-1 flex-col items-center gap-3 p-3">
+			<Board />
+		</div>
+		<RoundTracker />
+		<PlayerSwitcher />
+		<MenuDrawer />
+	</>
+);
+
+// The one place in the whole component tree that branches on Local vs
+// Online — every component under either provider (Board, Zone, Card, ...)
+// only ever consumes the shared hooks in GameContext.tsx and stays
+// completely mode-agnostic. See AGENTS.md's Multiplayer State Model.
 function GameScreenInner({ gameId }: { gameId: string }) {
-	// Set on the homepage's local player-count/name form, e.g.
-	// /game/abc123?players=3&name=Alice&name=Bob&name=Carl — only used the
-	// first time this gameId is played; a resumed game (loaded from
-	// localStorage in GameProvider) ignores these and keeps its own players.
 	const searchParams = useSearchParams();
 	const playerCount = Number(searchParams.get("players")) || 2;
-	const playerNames = searchParams.getAll("name");
 
+	if (searchParams.get("mode") === "online") {
+		return (
+			<OnlineGameProvider gameId={gameId} playerCount={playerCount}>
+				{GAME_TREE}
+			</OnlineGameProvider>
+		);
+	}
+
+	const playerNames = searchParams.getAll("name");
 	return (
 		<GameProvider gameId={gameId} playerCount={playerCount} playerNames={playerNames}>
-			<div className="flex flex-1 flex-col items-center gap-3 p-3">
-				<Board />
-			</div>
-			<RoundTracker />
-			<PlayerSwitcher />
-			<MenuDrawer />
+			{GAME_TREE}
 		</GameProvider>
 	);
 }

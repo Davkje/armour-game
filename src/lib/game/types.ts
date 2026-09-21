@@ -89,14 +89,22 @@ export interface BoardState {
 
 export type GameAction =
 	| { type: "MOVE_CARD"; cardId: CardId; zoneId: ZoneId; position: Position }
-	| { type: "SHUFFLE_ZONE"; zoneId: ZoneId }
+	| { type: "SHUFFLE_ZONE"; zoneId: ZoneId; randomValues: number[] }
 	| { type: "SORT_ZONE"; zoneId: ZoneId; direction: "asc" | "desc" }
 	| { type: "FLIP_CARD"; cardId: CardId }
 	| { type: "ADD_CONDITION"; cardId: CardId; condition: ConditionType }
 	| { type: "REMOVE_CONDITION"; cardId: CardId; condition: ConditionType }
-	| { type: "PLACE_TOKEN"; tokenType: FreeTokenType; zoneId: ZoneId; position: Position }
+	| {
+			type: "PLACE_TOKEN";
+			tokenId: BoardTokenId;
+			tokenType: FreeTokenType;
+			zoneId: ZoneId;
+			position: Position;
+	  }
 	| { type: "MOVE_TOKEN"; tokenId: BoardTokenId; zoneId: ZoneId; position: Position }
 	| { type: "REMOVE_TOKEN"; tokenId: BoardTokenId }
 	| { type: "SET_ROUND"; round: number }
 	| { type: "RESET_BOARD" }
-	| { type: "LOAD_STATE"; state: BoardState };
+	| { type: "LOAD_STATE"; state: BoardState }
+	/** Online mode only — a joining player sets their own display name on the slot the server assigned them. */
+	| { type: "RENAME_PLAYER"; playerId: PlayerId; name: string };
