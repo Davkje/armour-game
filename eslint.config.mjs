@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // wrangler's generated bundles from `yarn party:dev`
+    ".wrangler/**",
   ]),
 ]);
 

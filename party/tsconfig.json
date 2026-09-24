@@ -1,0 +1,19 @@
+{
+	// The room server runs on Cloudflare Workers, not in the browser, so it is
+	// type-checked separately from the Next.js app (`yarn typecheck:party`):
+	// Workers types and the DOM lib declare conflicting globals (WebSocket,
+	// Request, Response...) and can't share one tsconfig.
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["ES2022"],
+		"types": ["@cloudflare/workers-types"],
+		"strict": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true
+	},
+	"include": ["./**/*.ts"]
+}

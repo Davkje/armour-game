@@ -1,0 +1,12 @@
+{
+	"name": "armour-game-party",
+	"main": "party/index.ts",
+	"compatibility_date": "2025-09-01",
+	"durable_objects": {
+		"bindings": [{ "name": "GameServer", "class_name": "GameServer" }]
+	},
+	// SQLite-backed Durable Objects are the kind available on Cloudflare's free plan.
+	"migrations": [{ "tag": "v1", "new_sqlite_classes": ["GameServer"] }],
+	// Keeps the local `yarn party:dev` server on the same port the client already falls back to.
+	"dev": { "port": 1999 }
+}

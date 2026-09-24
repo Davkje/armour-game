@@ -43,3 +43,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# wrangler — local dev state for the room server (yarn party:dev)
+.wrangler/

@@ -81,6 +81,10 @@ export function OnlineGameProvider({
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
+		// partyserver routes /parties/<kebab-cased binding name>/<room> and, unlike
+		// the old PartyKit platform, has no default "main" party — this must match
+		// the `GameServer` binding in wrangler.jsonc.
+		party: "game-server",
 		room: gameId,
 		onOpen() {
 			// Every (re)connection — including PartySocket's own automatic
