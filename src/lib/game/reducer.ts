@@ -11,19 +11,30 @@ function maxOrderInZone(state: BoardState, zoneId: ZoneId) {
 }
 
 /**
- * Entropy for a SHUFFLE_ZONE action, generated at the dispatch call site (not
+ * Seed for a SHUFFLE_ZONE action, generated at the dispatch call site (not
  * inside the reducer) so `gameReducer` stays a pure function of its inputs —
- * needed so it can run identically server-side once Phase 2 makes the server
- * authoritative. 64 is comfortably more than any deck in this game ever
- * holds, and the reducer still uses its OWN live `cardsInZone` to know how
- * many of these values it actually needs — the caller never has to know the
- * zone's exact current size, only "enough" randomness, which matters for
- * call sites like Toolbar.tsx's "New Game" (RESET_BOARD immediately followed
- * by a SHUFFLE_ZONE per starting deck — the component's own state is still
- * stale at that point, since dispatches haven't landed yet).
+ * the client's optimistic run and the server's run of the same action must
+ * produce the identical shuffle. A single seed (expanded by `seededRandom`
+ * below) rather than a list of random numbers, so it works for a zone of any
+ * size: a shuffle of N cards needs N-1 random numbers, and the caller can't
+ * know N (e.g. Toolbar.tsx's "New Game" dispatches RESET_BOARD then a shuffle
+ * per deck before its own copy of the state has updated).
  */
-export function createShuffleEntropy(): number[] {
-	return Array.from({ length: 64 }, () => Math.random());
+export function createShuffleSeed(): number {
+	return Math.floor(Math.random() * 2 ** 32);
+}
+
+// mulberry32 — small, fast, deterministic PRNG. Not cryptographic, which is
+// fine: this only decides card order in a playtest tool.
+function seededRandom(seed: number): () => number {
+	let a = seed >>> 0;
+	return () => {
+		a = (a + 0x6d2b79f5) >>> 0;
+		let t = a;
+		t = Math.imul(t ^ (t >>> 15), t | 1);
+		t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
 }
 
 export function gameReducer(state: BoardState, action: GameAction): BoardState {
@@ -36,7 +47,6 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 
 			const order = maxOrderInZone(state, action.zoneId) + 1;
 			const position = zone.layout === "stack" ? { x: 0, y: 0 } : action.position;
-
 			// Drawing a card into a hand always reveals it to its owner
 			const faceDown = zone.kind === "hand" ? false : card.faceDown;
 
@@ -54,9 +64,9 @@ export function gameReducer(state: BoardState, action: GameAction): BoardState {
 			const faceDown = zone?.faceDownDefault ?? true;
 			const cards = cardsInZone(state, action.zoneId);
 			const shuffledOrders = cards.map((_, i) => i);
-			let entropyIndex = 0;
+			const random = seededRandom(action.seed);
 			for (let i = shuffledOrders.length - 1; i > 0; i--) {
-				const j = Math.floor(action.randomValues[entropyIndex++] * (i + 1));
+				const j = Math.floor(random() * (i + 1));
 				[shuffledOrders[i], shuffledOrders[j]] = [shuffledOrders[j], shuffledOrders[i]];
 			}
 

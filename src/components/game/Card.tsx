@@ -62,10 +62,16 @@ export function Card({
 		disabled: !canInteract,
 	});
 	// `accept: "token"` — only a condition token can drop onto a card, not
-	// another card (card-to-card drops don't mean anything here).
+	// another card (card-to-card drops don't mean anything here). Gated by
+	// the same ownership rule as dragging above — otherwise any player could
+	// slap a condition onto another player's equipped items or Player Area,
+	// which was possible before this check existed (bug: conditions have no
+	// in-game trigger a player chooses freely, they only ever result from a
+	// resolved Battle/Betray on your OWN gear).
 	const { ref: dropRef, isDropTarget } = useDroppable({
 		id: `card-drop:${card.id}`,
 		accept: "token",
+		disabled: !isOwnedByActivePlayer,
 	});
 	const dispatch = useGameDispatch();
 

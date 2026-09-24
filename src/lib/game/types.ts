@@ -89,7 +89,7 @@ export interface BoardState {
 
 export type GameAction =
 	| { type: "MOVE_CARD"; cardId: CardId; zoneId: ZoneId; position: Position }
-	| { type: "SHUFFLE_ZONE"; zoneId: ZoneId; randomValues: number[] }
+	| { type: "SHUFFLE_ZONE"; zoneId: ZoneId; seed: number }
 	| { type: "SORT_ZONE"; zoneId: ZoneId; direction: "asc" | "desc" }
 	| { type: "FLIP_CARD"; cardId: CardId }
 	| { type: "ADD_CONDITION"; cardId: CardId; condition: ConditionType }

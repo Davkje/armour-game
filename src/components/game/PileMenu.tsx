@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGameDispatch } from "./GameContext";
-import { createShuffleEntropy } from "@/lib/game/reducer";
+import { createShuffleSeed } from "@/lib/game/reducer";
 import type { ZoneId } from "@/lib/game/types";
 import { RiArrowDownSFill, RiArrowUpSFill } from "@remixicon/react";
 
@@ -129,7 +129,7 @@ export function PileMenu({
 				type="button"
 				className="btn-secondary text-md"
 				onClick={() => {
-					dispatch({ type: "SHUFFLE_ZONE", zoneId, randomValues: createShuffleEntropy() });
+					dispatch({ type: "SHUFFLE_ZONE", zoneId, seed: createShuffleSeed() });
 					onClose();
 				}}
 			>

@@ -2,9 +2,8 @@ import type * as Party from "partykit/server";
 import { buildInitialState } from "../src/lib/game/initialState";
 import { gameReducer } from "../src/lib/game/reducer";
 import type { ClientMessage, ServerMessage } from "../src/lib/game/protocol";
+import { loadState, saveState, type WrittenSnapshot } from "./persistence";
 import type { BoardState, GameAction, PlayerId, ZoneId } from "../src/lib/game/types";
-
-const STORAGE_KEY = "state";
 
 // A refresh/network blip shouldn't evict someone from their own hand — a
 // disconnected player's seat is held for this long before it's released for
@@ -43,11 +42,13 @@ export default class GameServer implements Party.Server {
 	constructor(readonly room: Party.Room) {}
 
 	state: BoardState | undefined;
+	/** What's already in room.storage, so persist() only rewrites the card chunks that actually changed. */
+	written: WrittenSnapshot = new Map();
 	/** playerId -> pending "free this seat" timer, only set while disconnected within the grace window. */
 	disconnectTimers = new Map<PlayerId, ReturnType<typeof setTimeout>>();
 
 	async onStart() {
-		this.state = (await this.room.storage.get<BoardState>(STORAGE_KEY)) ?? undefined;
+		this.state = await loadState(this.room.storage);
 	}
 
 	// No onConnect handler needed — a connection isn't bound to a player (and
@@ -146,7 +147,15 @@ export default class GameServer implements Party.Server {
 			this.state = gameReducer(this.state, { type: "RENAME_PLAYER", playerId, name });
 		}
 
-		const joined: ServerMessage = { type: "joined", playerId };
+		// Recomputed AFTER `setState` above, so it includes the seat this
+		// connection just claimed.
+		const occupiedSeats = this.claimedPlayerIds().size;
+		const joined: ServerMessage = {
+			type: "joined",
+			playerId,
+			occupiedSeats,
+			totalSeats: this.state?.players.length ?? occupiedSeats,
+		};
 		sender.send(JSON.stringify(joined));
 
 		this.persistAndBroadcast();
@@ -171,7 +180,7 @@ export default class GameServer implements Party.Server {
 	}
 
 	async persist() {
-		if (this.state) await this.room.storage.put(STORAGE_KEY, this.state);
+		if (this.state) await saveState(this.room.storage, this.state, this.written);
 	}
 
 	async persistAndBroadcast() {

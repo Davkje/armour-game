@@ -13,6 +13,7 @@ import {
 	GameModeContext,
 	GameStateContext,
 } from "./GameContext";
+import { InviteLinkOverlay } from "./InviteLinkOverlay";
 import { OnlineJoinScreen } from "./OnlineJoinScreen";
 
 // Falls back to the local `partykit dev` default (see AGENTS.md) so this
@@ -44,7 +45,7 @@ const CURSOR_SEND_THROTTLE_MS = 50;
  * completed, and dnd-kit's drop animation (which measures the dragged card's
  * *actual* DOM position right after the drop) would animate toward its stale
  * pre-drop spot instead of where it was actually dropped. Because actions
- * carry their own randomness/ids (see createShuffleEntropy in reducer.ts),
+ * carry their own randomness/ids (see createShuffleSeed in reducer.ts),
  * this local prediction and the server's own run of the identical action
  * produce identical results in the common case, so the eventual broadcast
  * arrives as a no-op replace; it only visibly corrects anything if another
@@ -71,6 +72,12 @@ export function OnlineGameProvider({
 	const playerIdRef = useRef<PlayerId | null>(null);
 	const lastCursorSentAtRef = useRef(0);
 	const cursorExpiryTimersRef = useRef<Record<PlayerId, ReturnType<typeof setTimeout>>>({});
+	// Shown once per tab, right after the FIRST successful join — guarded by
+	// a ref (not just checking `status`) so PartySocket's automatic
+	// reconnects after a network blip, which also send a fresh "joined"
+	// message, don't pop it back up mid-game.
+	const hasShownInviteRef = useRef(false);
+	const [showInviteOverlay, setShowInviteOverlay] = useState(false);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
@@ -96,6 +103,11 @@ export function OnlineGameProvider({
 				setPlayerId(message.playerId);
 				saveOnlinePlayerId(gameId, message.playerId);
 				setStatus("joined");
+				// No point inviting more people to a room that's already full.
+				if (!hasShownInviteRef.current && message.occupiedSeats < message.totalSeats) {
+					hasShownInviteRef.current = true;
+					setShowInviteOverlay(true);
+				}
 			} else if (message.type === "join-rejected") {
 				setStatus("full");
 			} else if (message.type === "state") {
@@ -157,6 +169,9 @@ export function OnlineGameProvider({
 					<ActivePlayerContext.Provider value={activePlayerState}>
 						<CursorContext.Provider value={{ cursors, sendCursor }}>
 							{children}
+							{showInviteOverlay && (
+								<InviteLinkOverlay onClose={() => setShowInviteOverlay(false)} />
+							)}
 						</CursorContext.Provider>
 					</ActivePlayerContext.Provider>
 				</GameDispatchContext.Provider>

@@ -29,7 +29,13 @@ export type ClientMessage =
 	| { type: "cursor"; zoneId: ZoneId; position: Position };
 
 export type ServerMessage =
-	| { type: "joined"; playerId: PlayerId }
+	| {
+			type: "joined";
+			playerId: PlayerId;
+			/** Seat occupancy right after this join — lets the client decide e.g. whether it's still worth offering to invite more players (see InviteLinkOverlay.tsx). */
+			occupiedSeats: number;
+			totalSeats: number;
+	  }
 	| { type: "join-rejected"; reason: "full" }
 	| { type: "state"; state: BoardState }
 	| { type: "cursor"; playerId: PlayerId; zoneId: ZoneId; position: Position };

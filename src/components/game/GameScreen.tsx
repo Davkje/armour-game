@@ -30,7 +30,17 @@ function GameScreenInner({ gameId }: { gameId: string }) {
 
 	if (searchParams.get("mode") === "online") {
 		return (
-			<OnlineGameProvider gameId={gameId} playerCount={playerCount}>
+			// `key={gameId}` forces a full remount whenever the URL's gameId
+			// changes — otherwise navigating client-side from one /game/[gameId]
+			// route straight to another (same tab, no hard reload — e.g. someone
+			// re-pastes a fresh invite link over an already-open game) reuses the
+			// SAME OnlineGameProvider instance, leaving its refs (in particular
+			// the "which playerId did I claim" ref that drives silent auto-rejoin)
+			// pointed at the PREVIOUS room. Since player ids are just "player-1",
+			// "player-2", etc. — not globally unique — that stale id can happen
+			// to also exist in the new room, silently auto-rejoining that seat
+			// and skipping the name prompt entirely instead of asking who you are.
+			<OnlineGameProvider key={gameId} gameId={gameId} playerCount={playerCount}>
 				{GAME_TREE}
 			</OnlineGameProvider>
 		);
@@ -38,7 +48,7 @@ function GameScreenInner({ gameId }: { gameId: string }) {
 
 	const playerNames = searchParams.getAll("name");
 	return (
-		<GameProvider gameId={gameId} playerCount={playerCount} playerNames={playerNames}>
+		<GameProvider key={gameId} gameId={gameId} playerCount={playerCount} playerNames={playerNames}>
 			{GAME_TREE}
 		</GameProvider>
 	);

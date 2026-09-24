@@ -2,9 +2,9 @@
 
 import { useRef, useState } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
+import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/react";
 import { CardZoomOverlay } from "./CardZoomOverlay";
-import { useActivePlayerId, useGameDispatch, useGameState } from "./GameContext";
+import { useActivePlayerId, useCursors, useGameDispatch, useGameState } from "./GameContext";
 import { PlayerSection } from "./PlayerSection";
 import { TokenMenu } from "./TokenMenu";
 import { Zone } from "./Zone";
@@ -15,6 +15,7 @@ export function Board() {
 	const state = useGameState();
 	const dispatch = useGameDispatch();
 	const [activePlayerId] = useActivePlayerId();
+	const { sendCursor } = useCursors();
 	// Offset between the pointer and the dragged element's top-left corner at
 	// the moment the drag started, so the exact spot it was grabbed stays
 	// under the cursor on drop (rather than assuming the cursor grabbed the
@@ -32,6 +33,29 @@ export function Board() {
 		} else {
 			grabOffsetRef.current = { x: CARD_WIDTH / 2, y: CARD_HEIGHT / 2 };
 		}
+	}
+
+	// While actively dragging, Zone.tsx's own onPointerMove never fires (the
+	// dragged element captures the pointer), so without this an opponent's
+	// cursor would look frozen for the entire drag and only jump once you
+	// let go. dnd-kit already tracks the live pointer + whichever droppable
+	// it's currently over during the drag — reuse that instead of a separate
+	// document-level listener. Same zone-relative convention as Zone.tsx's
+	// own sendCursor call, just driven by the drag operation's target/pointer
+	// instead of a raw DOM pointermove event.
+	function handleDragMove(event: DragMoveEvent) {
+		const target = event.operation.target;
+		const targetShape = target?.shape as
+			| { left: number; top: number; width: number; height: number }
+			| undefined;
+		if (!target || !targetShape || targetShape.width === 0 || targetShape.height === 0) return;
+		const zoneId = target.id as ZoneId;
+		if (!state.zones[zoneId]) return;
+		const pointer = event.operation.position.current;
+		sendCursor(zoneId, {
+			x: (pointer.x - targetShape.left) / targetShape.width,
+			y: (pointer.y - targetShape.top) / targetShape.height,
+		});
 	}
 
 	// Where the dragged element's top-left corner should land, as a fraction
@@ -119,7 +143,11 @@ export function Board() {
 
 	return (
 		<>
-			<DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+			<DragDropProvider
+				onDragStart={handleDragStart}
+				onDragMove={handleDragMove}
+				onDragEnd={handleDragEnd}
+			>
 				<TokenMenu />
 				{/*
 				 * One flat flex-wrap container for every player section plus the
