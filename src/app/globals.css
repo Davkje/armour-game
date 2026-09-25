@@ -229,6 +229,17 @@ input[type="radio"]:checked::before {
 	animation: hand-count-pulse 400ms ease-out;
 }
 
+@keyframes notice-in {
+	from {
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 dialog.menu-drawer {
 	position: fixed;
 	top: 0;

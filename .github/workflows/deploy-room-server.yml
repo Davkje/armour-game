@@ -1,0 +1,47 @@
+# Deploys the multiplayer room server (party/, a Cloudflare Worker) — Vercel only
+# builds the Next.js app and knows nothing about it. Runs on pushes to main that
+# touch anything the server is built from; the game rules in src/lib/game run
+# inside the server too, so they count. Needs two repository secrets:
+# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID (see AGENTS.md).
+name: Deploy room server
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "party/**"
+      - "src/lib/game/**"
+      - "src/data/**"
+      - "wrangler.jsonc"
+      - "package.json"
+      - "yarn.lock"
+      - ".github/workflows/deploy-room-server.yml"
+  # Lets you re-run it by hand from the Actions tab (e.g. after adding the secrets).
+  workflow_dispatch:
+
+# Never run two deploys at once; a newer push waits for the running one.
+concurrency:
+  group: deploy-room-server
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: yarn
+
+      # The Worker bundles partyserver and the shared game code from node_modules/src.
+      - run: yarn install --frozen-lockfile
+
+      # A server that doesn't type-check never gets deployed.
+      - run: yarn typecheck:party
+
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -37,5 +37,17 @@ export type ServerMessage =
 			totalSeats: number;
 	  }
 	| { type: "join-rejected"; reason: "full" }
+	/**
+	 * Someone else's connection changed (never sent to the player it's about).
+	 * "disconnected" covers both closing the tab and a network drop — the server
+	 * can't tell them apart — and their seat is held for a grace period, so it's
+	 * usually followed by "reconnected".
+	 */
+	| {
+			type: "presence";
+			event: "joined" | "reconnected" | "disconnected";
+			playerId: PlayerId;
+			name: string;
+	  }
 	| { type: "state"; state: BoardState }
 	| { type: "cursor"; playerId: PlayerId; zoneId: ZoneId; position: Position };

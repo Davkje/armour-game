@@ -3,7 +3,8 @@ import { buildInitialState } from "../src/lib/game/initialState";
 import { gameReducer } from "../src/lib/game/reducer";
 import type { ClientMessage, ServerMessage } from "../src/lib/game/protocol";
 import { loadState, saveState, type WrittenSnapshot } from "./persistence";
-import type { BoardState, GameAction, PlayerId, ZoneId } from "../src/lib/game/types";
+import { MAX_MESSAGE_BYTES, MAX_NAME_LENGTH, isValidPosition, validateAction } from "./validate";
+import type { BoardState, PlayerId, ZoneId } from "../src/lib/game/types";
 
 // A refresh/network blip shouldn't evict someone from their own hand — a
 // disconnected player's seat is held for this long before it's released for
@@ -57,13 +58,15 @@ export class GameServer extends Server<Env> {
 	// gets no state) until its first "join" message arrives, via onMessage.
 
 	async onMessage(connection: Connection<ConnectionData>, raw: WSMessage) {
-		if (typeof raw !== "string") return;
+		if (typeof raw !== "string" || raw.length > MAX_MESSAGE_BYTES) return;
 		let message: ClientMessage;
 		try {
 			message = JSON.parse(raw) as ClientMessage;
 		} catch {
 			return;
 		}
+
+		if (typeof message !== "object" || message === null) return;
 
 		if (message.type === "join") {
 			await this.handleJoin(message, connection);
@@ -82,7 +85,17 @@ export class GameServer extends Server<Env> {
 
 	onClose(connection: Connection<ConnectionData>) {
 		const playerId = connection.state?.playerId;
-		if (playerId) this.heldSeats.set(playerId, Date.now());
+		if (!playerId) return;
+		this.heldSeats.set(playerId, Date.now());
+		this.announce("disconnected", playerId, connection.id);
+	}
+
+	/** Tell everyone except `exceptConnectionId` that a player's connection changed. */
+	announce(event: "joined" | "reconnected" | "disconnected", playerId: PlayerId, exceptConnectionId: string) {
+		const name = this.state?.players.find((p) => p.id === playerId)?.name;
+		if (!name) return;
+		const message: ServerMessage = { type: "presence", event, playerId, name };
+		this.broadcast(JSON.stringify(message), [exceptConnectionId]);
 	}
 
 	/** playerIds currently bound to an open connection. */
@@ -110,17 +123,21 @@ export class GameServer extends Server<Env> {
 		sender: Connection<ConnectionData>,
 	) {
 		if (!this.state) {
-			this.state = buildInitialState(message.playerCount);
+			// A non-integer here would make buildInitialState build zero players.
+			const requested = Number.isInteger(message.playerCount) ? message.playerCount : 2;
+			this.state = buildInitialState(requested);
 			await this.persist();
 		}
+		const name = typeof message.name === "string" ? message.name.trim().slice(0, MAX_NAME_LENGTH) : undefined;
+		const rejoinPlayerId = typeof message.rejoinPlayerId === "string" ? message.rejoinPlayerId : undefined;
 
 		// Reclaiming a seat you already held (e.g. after a refresh) — allowed as
 		// long as no OTHER live connection is currently sitting in it, even if
 		// it's inside its grace window.
-		if (message.rejoinPlayerId && !this.openPlayerIds().has(message.rejoinPlayerId)) {
-			const stillExists = this.state.players.some((p) => p.id === message.rejoinPlayerId);
+		if (rejoinPlayerId && !this.openPlayerIds().has(rejoinPlayerId)) {
+			const stillExists = this.state.players.some((p) => p.id === rejoinPlayerId);
 			if (stillExists) {
-				this.bindAndConfirm(sender, message.rejoinPlayerId, undefined);
+				this.bindAndConfirm(sender, rejoinPlayerId, undefined);
 				return;
 			}
 		}
@@ -133,7 +150,7 @@ export class GameServer extends Server<Env> {
 			return;
 		}
 
-		this.bindAndConfirm(sender, freePlayerId, message.name);
+		this.bindAndConfirm(sender, freePlayerId, name || undefined);
 	}
 
 	bindAndConfirm(sender: Connection<ConnectionData>, playerId: PlayerId, name: string | undefined) {
@@ -156,15 +173,25 @@ export class GameServer extends Server<Env> {
 			totalSeats: this.state?.players.length ?? occupiedSeats,
 		};
 		sender.send(JSON.stringify(joined));
+		this.announce(name ? "joined" : "reconnected", playerId, sender.id);
 
 		void this.persistAndBroadcast();
 	}
 
-	async handleAction(sender: Connection<ConnectionData>, action: GameAction) {
+	async handleAction(sender: Connection<ConnectionData>, action: unknown) {
 		const playerId = sender.state?.playerId;
 		if (!playerId || !this.state) return;
 
-		this.state = gameReducer(this.state, action);
+		const valid = validateAction(this.state, playerId, action);
+		if (!valid) {
+			console.warn(`refused action from ${playerId}:`, JSON.stringify(action)?.slice(0, 200));
+			// The sender already applied it optimistically (see OnlineGameProvider),
+			// so hand it the real board to snap back to.
+			this.sendState(sender);
+			return;
+		}
+
+		this.state = gameReducer(this.state, valid);
 		await this.persistAndBroadcast();
 	}
 
@@ -173,7 +200,8 @@ export class GameServer extends Server<Env> {
 	// dropped.
 	handleCursor(sender: Connection<ConnectionData>, zoneId: ZoneId, position: { x: number; y: number }) {
 		const playerId = sender.state?.playerId;
-		if (!playerId) return;
+		if (!playerId || !this.state) return;
+		if (typeof zoneId !== "string" || !this.state.zones[zoneId] || !isValidPosition(position)) return;
 		const message: ServerMessage = { type: "cursor", playerId, zoneId, position };
 		this.broadcast(JSON.stringify(message), [sender.id]);
 	}
@@ -185,12 +213,15 @@ export class GameServer extends Server<Env> {
 	async persistAndBroadcast() {
 		await this.persist();
 		if (!this.state) return;
-		for (const connection of this.getConnections<ConnectionData>()) {
-			const viewerId = connection.state?.playerId;
-			if (!viewerId) continue;
-			const message: ServerMessage = { type: "state", state: redactForViewer(this.state, viewerId) };
-			connection.send(JSON.stringify(message));
-		}
+		for (const connection of this.getConnections<ConnectionData>()) this.sendState(connection);
+	}
+
+	/** Send one connection the authoritative board, redacted for the seat it holds. */
+	sendState(connection: Connection<ConnectionData>) {
+		const viewerId = connection.state?.playerId;
+		if (!viewerId || !this.state) return;
+		const message: ServerMessage = { type: "state", state: redactForViewer(this.state, viewerId) };
+		connection.send(JSON.stringify(message));
 	}
 }
 

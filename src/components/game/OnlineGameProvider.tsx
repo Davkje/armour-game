@@ -15,6 +15,7 @@ import {
 } from "./GameContext";
 import { InviteLinkOverlay } from "./InviteLinkOverlay";
 import { OnlineJoinScreen } from "./OnlineJoinScreen";
+import { PresenceNotices, type PresenceNotice } from "./PresenceNotices";
 
 // Falls back to the local `partykit dev` default (see AGENTS.md) so this
 // works out of the box without any env setup; set for real once the party
@@ -31,6 +32,14 @@ const CURSOR_STALE_MS = 4_000;
 // Sending on every raw mousemove would be dozens of messages/sec per player;
 // this is a floor on time between sends, not a smoothing/animation rate.
 const CURSOR_SEND_THROTTLE_MS = 50;
+// How long a "Bob joined the game" bubble stays on screen.
+const NOTICE_VISIBLE_MS = 4_000;
+
+const PRESENCE_TEXT = {
+	joined: "joined the game",
+	reconnected: "reconnected",
+	disconnected: "disconnected",
+} as const;
 
 /**
  * Online mode's implementation of the shared GameContext interface (see
@@ -78,6 +87,8 @@ export function OnlineGameProvider({
 	// message, don't pop it back up mid-game.
 	const hasShownInviteRef = useRef(false);
 	const [showInviteOverlay, setShowInviteOverlay] = useState(false);
+	const [notices, setNotices] = useState<PresenceNotice[]>([]);
+	const nextNoticeIdRef = useRef(0);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
@@ -116,6 +127,11 @@ export function OnlineGameProvider({
 				setStatus("full");
 			} else if (message.type === "state") {
 				setState(message.state);
+			} else if (message.type === "presence") {
+				const id = nextNoticeIdRef.current++;
+				const text = `${message.name} ${PRESENCE_TEXT[message.event]}`;
+				setNotices((prev) => [...prev, { id, text }]);
+				setTimeout(() => setNotices((prev) => prev.filter((n) => n.id !== id)), NOTICE_VISIBLE_MS);
 			} else if (message.type === "cursor") {
 				const { playerId: fromPlayerId, zoneId, position } = message;
 				setCursors((prev) => ({ ...prev, [fromPlayerId]: { zoneId, position } }));
@@ -173,6 +189,7 @@ export function OnlineGameProvider({
 					<ActivePlayerContext.Provider value={activePlayerState}>
 						<CursorContext.Provider value={{ cursors, sendCursor }}>
 							{children}
+							<PresenceNotices notices={notices} />
 							{showInviteOverlay && (
 								<InviteLinkOverlay onClose={() => setShowInviteOverlay(false)} />
 							)}
