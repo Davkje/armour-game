@@ -49,25 +49,44 @@ export function saveActivePlayerId(gameId: string, playerId: string) {
 }
 
 /**
- * Online mode: which seat this browser claimed in a given room, so a
- * refresh (or reopening the tab within the server's disconnect grace period
- * — see party/index.ts) can silently reclaim the same seat instead of
- * prompting for a name again. Deliberately localStorage, not sessionStorage
- * — this needs to survive a closed tab, not just a refresh, so someone can
- * pick their game back up later from a fresh tab.
+ * Online mode: which seat this browser claimed in a given room, plus the
+ * secret the server issued for it, so a refresh (or reopening the tab) can
+ * take the same seat back instead of asking again. The secret is what makes
+ * that safe — the server only lets a matching seat+secret pair take over a
+ * seat that still has a live connection. Deliberately localStorage, not
+ * sessionStorage: it needs to survive a closed tab.
  */
-export function loadOnlinePlayerId(gameId: string): PlayerId | null {
+export interface OnlineSeat {
+	playerId: PlayerId;
+	token: string;
+}
+
+export function loadOnlineSeat(gameId: string): OnlineSeat | null {
 	try {
-		return localStorage.getItem(ONLINE_PLAYER_PREFIX + gameId);
+		const raw = localStorage.getItem(ONLINE_PLAYER_PREFIX + gameId);
+		if (!raw) return null;
+		const parsed = JSON.parse(raw) as Partial<OnlineSeat>;
+		// Anything from before seats had a secret (a bare "player-2") is unusable.
+		return typeof parsed.playerId === "string" && typeof parsed.token === "string"
+			? { playerId: parsed.playerId, token: parsed.token }
+			: null;
 	} catch {
 		return null;
 	}
 }
 
-export function saveOnlinePlayerId(gameId: string, playerId: PlayerId) {
+export function saveOnlineSeat(gameId: string, seat: OnlineSeat) {
 	try {
-		localStorage.setItem(ONLINE_PLAYER_PREFIX + gameId, playerId);
+		localStorage.setItem(ONLINE_PLAYER_PREFIX + gameId, JSON.stringify(seat));
 	} catch {
-		// Not critical — worst case a reload prompts for your name again.
+		// Not critical — worst case a reload shows the seat picker again.
+	}
+}
+
+export function clearOnlineSeat(gameId: string) {
+	try {
+		localStorage.removeItem(ONLINE_PLAYER_PREFIX + gameId);
+	} catch {
+		// Nothing to clear if storage is unavailable.
 	}
 }

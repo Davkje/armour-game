@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { PlayersPanel } from "./PlayersPanel";
 import { RulesReference } from "./RulesReference";
 import { Toolbar } from "./Toolbar";
 import { RiMenuLine } from "@remixicon/react";
@@ -42,7 +43,10 @@ export function MenuDrawer() {
 				</div>
 
 				<div className="flex flex-col gap-6 overflow-y-auto p-6">
-					<Toolbar />
+					<PlayersPanel />
+					<div className="border-t border-black/10 pt-6">
+						<Toolbar />
+					</div>
 					<div className="border-t border-black/10 pt-6">
 						<RulesReference />
 					</div>

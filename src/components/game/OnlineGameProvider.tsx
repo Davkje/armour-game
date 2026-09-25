@@ -3,8 +3,8 @@
 import { useRef, useState, type Dispatch, type ReactNode } from "react";
 import usePartySocket from "partysocket/react";
 import { gameReducer } from "@/lib/game/reducer";
-import { loadOnlinePlayerId, saveOnlinePlayerId } from "@/lib/game/storage";
-import type { ClientMessage, ServerMessage } from "@/lib/game/protocol";
+import { clearOnlineSeat, loadOnlineSeat, saveOnlineSeat, type OnlineSeat } from "@/lib/game/storage";
+import type { ClientMessage, RosterSeat, ServerMessage } from "@/lib/game/protocol";
 import type { BoardState, GameAction, PlayerId, Position, ZoneId } from "@/lib/game/types";
 import {
 	ActivePlayerContext,
@@ -12,6 +12,7 @@ import {
 	GameDispatchContext,
 	GameModeContext,
 	GameStateContext,
+	RosterContext,
 } from "./GameContext";
 import { InviteLinkOverlay } from "./InviteLinkOverlay";
 import { OnlineJoinScreen } from "./OnlineJoinScreen";
@@ -22,7 +23,20 @@ import { PresenceNotices, type PresenceNotice } from "./PresenceNotices";
 // server has an actual deployed host.
 const PARTYKIT_HOST = process.env.NEXT_PUBLIC_PARTYKIT_HOST || "127.0.0.1:1999";
 
-type Status = "connecting" | "needs-name" | "full" | "joined";
+// "choosing": connected but not seated — the join screen offers the seats.
+// "replaced": another window of the same player took the seat over.
+type Status = "connecting" | "choosing" | "replaced" | "joined";
+
+// The server closes a connection with this code when a newer one of the same
+// player takes its seat (party/index.ts) — it must not auto-reconnect, or two
+// open tabs would keep kicking each other out.
+const REPLACED_CLOSE_CODE = 4000;
+
+const JOIN_REJECTED_TEXT = {
+	full: "Every seat is taken by someone who is connected right now.",
+	taken: "Someone just took that seat — pick another one.",
+	"unknown-seat": "We couldn't match your saved seat — pick your seat below.",
+} as const;
 
 // A cursor's rendered position holds steady if its owner just isn't moving
 // their mouse, so the only way to know one has actually gone stale (closed
@@ -74,11 +88,6 @@ export function OnlineGameProvider({
 	const [playerId, setPlayerId] = useState<PlayerId | null>(null);
 	const [state, setState] = useState<BoardState | null>(null);
 	const [cursors, setCursors] = useState<Record<PlayerId, { zoneId: ZoneId; position: Position }>>({});
-	// A ref alongside the state so `onOpen` (which can fire again on an
-	// automatic reconnect, long after this render's closure was created) can
-	// always read the *current* claimed identity, not whatever it was when
-	// the socket was first opened.
-	const playerIdRef = useRef<PlayerId | null>(null);
 	const lastCursorSentAtRef = useRef(0);
 	const cursorExpiryTimersRef = useRef<Record<PlayerId, ReturnType<typeof setTimeout>>>({});
 	// Shown once per tab, right after the FIRST successful join — guarded by
@@ -89,6 +98,12 @@ export function OnlineGameProvider({
 	const [showInviteOverlay, setShowInviteOverlay] = useState(false);
 	const [notices, setNotices] = useState<PresenceNotice[]>([]);
 	const nextNoticeIdRef = useRef(0);
+	// null until the server's first roster arrives (it sends one on connect).
+	const [roster, setRoster] = useState<RosterSeat[] | null>(null);
+	const [joinNotice, setJoinNotice] = useState<string | null>(null);
+	// The seat + secret this browser holds, kept in a ref too so `onOpen` (which
+	// runs again on every automatic reconnect) always sees the latest.
+	const seatRef = useRef<OnlineSeat | null>(null);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
@@ -99,32 +114,54 @@ export function OnlineGameProvider({
 		room: gameId,
 		onOpen() {
 			// Every (re)connection — including PartySocket's own automatic
-			// reconnects after a network blip — needs to re-assert who this
-			// connection is; the server's Connection#state doesn't survive a
-			// dropped socket even though the seat itself is held for a grace
-			// period (see party/index.ts's DISCONNECT_GRACE_MS).
-			const known = playerIdRef.current ?? loadOnlinePlayerId(gameId);
-			if (known) {
-				const message: ClientMessage = { type: "join", playerCount, rejoinPlayerId: known };
+			// reconnects after a network blip — has to prove who it is again; the
+			// server's per-connection state doesn't survive a dropped socket. The
+			// seat + secret pair lets us take our seat back even if the server
+			// hasn't noticed the old socket died yet.
+			const saved = seatRef.current ?? loadOnlineSeat(gameId);
+			if (saved) {
+				seatRef.current = saved;
+				const message: ClientMessage = {
+					type: "join",
+					playerCount,
+					rejoinPlayerId: saved.playerId,
+					rejoinToken: saved.token,
+				};
 				socket.send(JSON.stringify(message));
 			} else {
-				setStatus("needs-name");
+				setStatus("choosing");
+			}
+		},
+		onClose(event) {
+			if (event.code === REPLACED_CLOSE_CODE) {
+				socket.close();
+				setStatus("replaced");
 			}
 		},
 		onMessage(event) {
 			const message = JSON.parse(event.data as string) as ServerMessage;
 			if (message.type === "joined") {
-				playerIdRef.current = message.playerId;
+				seatRef.current = { playerId: message.playerId, token: message.token };
 				setPlayerId(message.playerId);
-				saveOnlinePlayerId(gameId, message.playerId);
+				saveOnlineSeat(gameId, seatRef.current);
 				setStatus("joined");
+				setJoinNotice(null);
 				// No point inviting more people to a room that's already full.
 				if (!hasShownInviteRef.current && message.occupiedSeats < message.totalSeats) {
 					hasShownInviteRef.current = true;
 					setShowInviteOverlay(true);
 				}
 			} else if (message.type === "join-rejected") {
-				setStatus("full");
+				// A saved seat that didn't check out is no use — forget it so the
+				// next reconnect doesn't just retry it.
+				if (message.reason === "unknown-seat") {
+					seatRef.current = null;
+					clearOnlineSeat(gameId);
+				}
+				setJoinNotice(JOIN_REJECTED_TEXT[message.reason]);
+				setStatus("choosing");
+			} else if (message.type === "roster") {
+				setRoster(message.seats);
 			} else if (message.type === "state") {
 				setState(message.state);
 			} else if (message.type === "presence") {
@@ -148,10 +185,29 @@ export function OnlineGameProvider({
 		},
 	});
 
-	function handleJoinWithName(name: string) {
-		const message: ClientMessage = { type: "join", name, playerCount };
+	// From the join screen: a new name for a free seat, and/or an explicit seat.
+	function handleJoin(choice: { name?: string; claimPlayerId?: PlayerId }) {
+		setJoinNotice(null);
+		const message: ClientMessage = { type: "join", playerCount, ...choice };
 		socket.send(JSON.stringify(message));
 	}
+
+	// The "replaced" screen's button — this window takes the seat back.
+	function handleUseThisWindow() {
+		setStatus("connecting");
+		socket.reconnect();
+	}
+
+	const joinScreen = (screenStatus: "connecting" | "choosing" | "replaced") => (
+		<OnlineJoinScreen
+			status={screenStatus}
+			roster={roster}
+			playerCount={playerCount}
+			notice={joinNotice}
+			onJoin={handleJoin}
+			onUseThisWindow={handleUseThisWindow}
+		/>
+	);
 
 	const dispatch: Dispatch<GameAction> = (action) => {
 		setState((prev) => (prev ? gameReducer(prev, action) : prev));
@@ -168,14 +224,10 @@ export function OnlineGameProvider({
 	}
 
 	// Checked as two separate guards (rather than one `||`) so TypeScript can
-	// narrow `status` to OnlineJoinScreen's exact prop type in the first — a
+	// narrow `status` to the join screen's exact prop type in the first — a
 	// combined condition loses that narrowing across the `||`.
-	if (status !== "joined") {
-		return <OnlineJoinScreen status={status} onJoin={handleJoinWithName} />;
-	}
-	if (!state || !playerId) {
-		return <OnlineJoinScreen status="connecting" onJoin={handleJoinWithName} />;
-	}
+	if (status !== "joined") return joinScreen(status);
+	if (!state || !playerId) return joinScreen("connecting");
 
 	// activePlayerId is fixed to whichever seat this connection claimed — no
 	// manual switching online, so the setter is a stable no-op (PlayerSwitcher
@@ -188,11 +240,13 @@ export function OnlineGameProvider({
 				<GameDispatchContext.Provider value={dispatch}>
 					<ActivePlayerContext.Provider value={activePlayerState}>
 						<CursorContext.Provider value={{ cursors, sendCursor }}>
+							<RosterContext.Provider value={roster ?? []}>
 							{children}
 							<PresenceNotices notices={notices} />
 							{showInviteOverlay && (
 								<InviteLinkOverlay onClose={() => setShowInviteOverlay(false)} />
 							)}
+							</RosterContext.Provider>
 						</CursorContext.Provider>
 					</ActivePlayerContext.Provider>
 				</GameDispatchContext.Provider>

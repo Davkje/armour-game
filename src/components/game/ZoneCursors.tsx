@@ -2,9 +2,8 @@
 
 import { RiCursorFill } from "@remixicon/react";
 import { useCursors, useGameState } from "./GameContext";
+import { playerColor } from "@/lib/game/playerColors";
 import type { ZoneId } from "@/lib/game/types";
-
-const CURSOR_COLORS = ["#ef4444", "#3b82f6", "#22c55e", "#f59e0b"];
 
 export function ZoneCursors({ zoneId }: { zoneId: ZoneId }) {
 	const { cursors } = useCursors();
@@ -16,7 +15,7 @@ export function ZoneCursors({ zoneId }: { zoneId: ZoneId }) {
 				if (cursor.zoneId !== zoneId) return null;
 				const playerIndex = state.players.findIndex((p) => p.id === playerId);
 				if (playerIndex === -1) return null;
-				const color = CURSOR_COLORS[playerIndex % CURSOR_COLORS.length];
+				const color = playerColor(playerIndex);
 
 				return (
 					<div

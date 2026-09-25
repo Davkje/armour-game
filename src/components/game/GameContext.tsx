@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, type Dispatch } from "react";
+import type { RosterSeat } from "@/lib/game/protocol";
 import type { BoardState, GameAction, PlayerId, Position, ZoneId } from "@/lib/game/types";
 
 /**
@@ -62,4 +63,14 @@ export const CursorContext = createContext<{
 
 export function useCursors() {
 	return useContext(CursorContext);
+}
+
+/**
+ * Who is connected right now (Online mode only — see OnlineGameProvider.tsx).
+ * Empty in Local mode, where there is nothing to be online or offline.
+ */
+export const RosterContext = createContext<RosterSeat[]>([]);
+
+export function useRoster() {
+	return useContext(RosterContext);
 }
