@@ -51,6 +51,7 @@ function Entry({ title, body }: { title: string; body: string }) {
 export function RulesReference() {
 	return (
 		<div className="flex flex-col gap-6">
+			<h2>RULES</h2>
 			<Section title="Your Turn">
 				<div className="flex flex-col gap-1">
 					{YOUR_TURN.map((entry) => (

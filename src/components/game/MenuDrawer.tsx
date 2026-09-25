@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { PlayersPanel } from "./PlayersPanel";
 import { RulesReference } from "./RulesReference";
 import { Toolbar } from "./Toolbar";
-import { RiMenuLine } from "@remixicon/react";
+import { RiCloseLine, RiMenuLine } from "@remixicon/react";
 
 export function MenuDrawer() {
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -38,17 +38,35 @@ export function MenuDrawer() {
 						onClick={() => dialogRef.current?.close()}
 						className="btn-icon-ghost"
 					>
-						✕
+						<RiCloseLine />
 					</button>
 				</div>
 
 				<div className="flex flex-col gap-6 overflow-y-auto p-6">
-					<PlayersPanel />
 					<div className="border-t border-black/10 pt-6">
 						<Toolbar />
 					</div>
+					<PlayersPanel />
 					<div className="border-t border-black/10 pt-6">
 						<RulesReference />
+					</div>
+					<div className="border-t border-black/10 pt-6">
+						<h2 className="uppercase mb-6">Help</h2>
+						<p>
+							<strong>Flip Card</strong> - Right click
+						</p>
+						<p>
+							<strong>Deck Menu</strong> Command Click a deck to open
+						</p>
+						<p>
+							<strong>Conditions & Gold</strong> - Left Corner, drag to cards
+						</p>
+						<p>
+							<strong>Round Tracker</strong> - Bottom Right, right click to open
+						</p>
+						<p>
+							<strong>Invite Link</strong> - Url or in Menu
+						</p>
 					</div>
 				</div>
 			</dialog>

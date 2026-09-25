@@ -100,9 +100,7 @@ export function OnlineJoinScreen({
 
 	return shell(
 		<div className="flex w-full max-w-xs flex-col gap-5">
-			{notice && (
-				<p className="rounded-lg bg-yellow-100 px-4 py-2 text-center text-sm">{notice}</p>
-			)}
+			{notice && <p className="rounded-lg bg-yellow-100 px-4 py-2 text-center text-sm">{notice}</p>}
 
 			{isNewRoom && nameForm("Join Game")}
 
@@ -126,7 +124,9 @@ export function OnlineJoinScreen({
 
 			{freeSeat && (
 				<div className="flex flex-col gap-2">
-					{offlineSeats.length > 0 && <span className="text-sm text-black/60">Or join as someone new:</span>}
+					{offlineSeats.length > 0 && (
+						<span className="text-sm text-black/60">Or join as someone new:</span>
+					)}
 					{nameForm("Join as a new player", freeSeat.playerId)}
 				</div>
 			)}
@@ -138,8 +138,8 @@ export function OnlineJoinScreen({
 			)}
 
 			{onlineSeats.length > 0 && (
-				<p className="text-center text-sm text-black/50">
-					Here now: {onlineSeats.map((seat) => seat.name).join(", ")}
+				<p className="text-center text-md text-foreground">
+					Players: {onlineSeats.map((seat) => seat.name).join(", ")}
 				</p>
 			)}
 		</div>,
