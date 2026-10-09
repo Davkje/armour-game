@@ -121,7 +121,7 @@ input[type="radio"]:checked::before {
 }
 
 @utility btn {
-	@apply rounded-sm inline-flex items-center justify-center font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40;
+	@apply cursor-pointer rounded-sm inline-flex items-center justify-center font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40;
 }
 
 @utility btn-primary {
@@ -227,6 +227,20 @@ input[type="radio"]:checked::before {
 
 .hand-count-pulse {
 	animation: hand-count-pulse 400ms ease-out;
+}
+
+/* A single spin for the whole roll (not looped) — paired with `ease-in-out`
+   in DiceRoller.tsx so it winds up to speed and winds back down to a natural
+   stop by itself, instead of a looping animation getting cut off mid-turn.
+   1080deg = 3 full turns, which is visually identical to 0deg, so there's no
+   jump when the animation's style is removed once it's done. */
+@keyframes dice-roll {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(1080deg);
+	}
 }
 
 @keyframes notice-in {

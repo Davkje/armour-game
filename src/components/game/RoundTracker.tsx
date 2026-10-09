@@ -49,10 +49,7 @@ export function RoundTracker() {
 	}, [isPickerOpen]);
 
 	return (
-		<div
-			ref={containerRef}
-			className="group fixed z-20 right-4 bottom-4 flex flex-col-reverse items-end gap-1"
-		>
+		<div ref={containerRef} className="group flex flex-col-reverse items-end gap-1">
 			<button
 				type="button"
 				aria-label="Round tracker — click to advance, right-click to pick a round"

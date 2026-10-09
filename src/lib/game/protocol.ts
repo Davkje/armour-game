@@ -38,7 +38,9 @@ export type ClientMessage =
 	 * signal — never touches BoardState or room.storage; the server just
 	 * relays it to everyone else.
 	 */
-	| { type: "cursor"; zoneId: ZoneId; position: Position };
+	| { type: "cursor"; zoneId: ZoneId; position: Position }
+	/** Purely a notification for the other players (see PresenceNotices.tsx) — never touches BoardState, so a roll isn't part of the game's persisted history. */
+	| { type: "dice-roll"; value: number };
 
 export type ServerMessage =
 	| {
@@ -76,4 +78,6 @@ export type ServerMessage =
 			name: string;
 	  }
 	| { type: "state"; state: BoardState }
-	| { type: "cursor"; playerId: PlayerId; zoneId: ZoneId; position: Position };
+	| { type: "cursor"; playerId: PlayerId; zoneId: ZoneId; position: Position }
+	/** Relayed to everyone except the roller (see handleDiceRoll in party/index.ts) — the name comes from the server's own state, never trusted from the client. */
+	| { type: "dice-roll"; playerId: PlayerId; name: string; value: number };

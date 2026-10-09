@@ -5,41 +5,35 @@ import { useSearchParams } from "next/navigation";
 import { Board } from "./Board";
 import { GameProvider } from "./GameProvider";
 import { MenuDrawer } from "./MenuDrawer";
+import { NotesPanel } from "./NotesPanel";
 import { OnlineGameProvider } from "./OnlineGameProvider";
 import { PlayerSwitcher } from "./PlayerSwitcher";
 import { RoundTracker } from "./RoundTracker";
+import DiceRoller from "./DiceRoller";
 
 const GAME_TREE = (
 	<>
 		<div className="flex flex-1 flex-col items-center gap-3 p-3">
 			<Board />
 		</div>
-		<RoundTracker />
+		<div className="fixed bottom-4 left-16 right-4 z-30 flex h-10 items-end gap-2">
+			<NotesPanel />
+			<div className="ml-auto flex h-10 shrink-0 items-end gap-2">
+				<DiceRoller />
+				<RoundTracker />
+			</div>
+		</div>
 		<PlayerSwitcher />
 		<MenuDrawer />
 	</>
 );
 
-// The one place in the whole component tree that branches on Local vs
-// Online — every component under either provider (Board, Zone, Card, ...)
-// only ever consumes the shared hooks in GameContext.tsx and stays
-// completely mode-agnostic. See AGENTS.md's Multiplayer State Model.
 function GameScreenInner({ gameId }: { gameId: string }) {
 	const searchParams = useSearchParams();
 	const playerCount = Number(searchParams.get("players")) || 2;
 
 	if (searchParams.get("mode") === "online") {
 		return (
-			// `key={gameId}` forces a full remount whenever the URL's gameId
-			// changes — otherwise navigating client-side from one /game/[gameId]
-			// route straight to another (same tab, no hard reload — e.g. someone
-			// re-pastes a fresh invite link over an already-open game) reuses the
-			// SAME OnlineGameProvider instance, leaving its refs (in particular
-			// the "which playerId did I claim" ref that drives silent auto-rejoin)
-			// pointed at the PREVIOUS room. Since player ids are just "player-1",
-			// "player-2", etc. — not globally unique — that stale id can happen
-			// to also exist in the new room, silently auto-rejoining that seat
-			// and skipping the name prompt entirely instead of asking who you are.
 			<OnlineGameProvider key={gameId} gameId={gameId} playerCount={playerCount}>
 				{GAME_TREE}
 			</OnlineGameProvider>

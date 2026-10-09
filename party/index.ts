@@ -99,6 +99,11 @@ export class GameServer extends Server<Env> {
 
 		if (message.type === "cursor") {
 			this.handleCursor(connection, message.zoneId, message.position);
+			return;
+		}
+
+		if (message.type === "dice-roll") {
+			this.handleDiceRoll(connection, message.value);
 		}
 	}
 
@@ -303,6 +308,19 @@ export class GameServer extends Server<Env> {
 		if (typeof zoneId !== "string" || !this.state.zones[zoneId] || !isValidPosition(position))
 			return;
 		const message: ServerMessage = { type: "cursor", playerId, zoneId, position };
+		this.broadcast(JSON.stringify(message), [sender.id]);
+	}
+
+	// Pure relay, same shape as handleCursor — never touches `this.state`/storage.
+	// The roller already sees their own dice face animate on their own screen,
+	// so this only goes to everyone else.
+	handleDiceRoll(sender: Connection<ConnectionData>, value: unknown) {
+		const playerId = sender.state?.playerId;
+		if (!playerId || !this.state) return;
+		if (!Number.isInteger(value) || (value as number) < 1 || (value as number) > 6) return;
+		const name = this.state.players.find((p) => p.id === playerId)?.name;
+		if (!name) return;
+		const message: ServerMessage = { type: "dice-roll", playerId, name, value: value as number };
 		this.broadcast(JSON.stringify(message), [sender.id]);
 	}
 

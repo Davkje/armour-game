@@ -74,3 +74,15 @@ export const RosterContext = createContext<RosterSeat[]>([]);
 export function useRoster() {
 	return useContext(RosterContext);
 }
+
+/**
+ * Lets DiceRoller.tsx tell the other online players what it rolled, without
+ * knowing or caring whether it's in Local or Online mode — a no-op in Local
+ * mode, where the dice animation on screen is already visible to everyone
+ * passing the device around (see AGENTS.md's hotseat note).
+ */
+export const SendDiceRollContext = createContext<(value: number) => void>(() => {});
+
+export function useSendDiceRoll() {
+	return useContext(SendDiceRollContext);
+}

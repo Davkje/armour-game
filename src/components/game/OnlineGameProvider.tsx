@@ -13,6 +13,7 @@ import {
 	GameModeContext,
 	GameStateContext,
 	RosterContext,
+	SendDiceRollContext,
 } from "./GameContext";
 import { InviteLinkOverlay } from "./InviteLinkOverlay";
 import { OnlineJoinScreen } from "./OnlineJoinScreen";
@@ -169,6 +170,11 @@ export function OnlineGameProvider({
 				const text = `${message.name} ${PRESENCE_TEXT[message.event]}`;
 				setNotices((prev) => [...prev, { id, text }]);
 				setTimeout(() => setNotices((prev) => prev.filter((n) => n.id !== id)), NOTICE_VISIBLE_MS);
+			} else if (message.type === "dice-roll") {
+				const id = nextNoticeIdRef.current++;
+				const text = `${message.name} rolled a ${message.value}`;
+				setNotices((prev) => [...prev, { id, text }]);
+				setTimeout(() => setNotices((prev) => prev.filter((n) => n.id !== id)), NOTICE_VISIBLE_MS);
 			} else if (message.type === "cursor") {
 				const { playerId: fromPlayerId, zoneId, position } = message;
 				setCursors((prev) => ({ ...prev, [fromPlayerId]: { zoneId, position } }));
@@ -215,6 +221,11 @@ export function OnlineGameProvider({
 		socket.send(JSON.stringify(message));
 	};
 
+	function sendDiceRoll(value: number) {
+		const message: ClientMessage = { type: "dice-roll", value };
+		socket.send(JSON.stringify(message));
+	}
+
 	function sendCursor(zoneId: ZoneId, position: Position) {
 		const now = Date.now();
 		if (now - lastCursorSentAtRef.current < CURSOR_SEND_THROTTLE_MS) return;
@@ -241,11 +252,13 @@ export function OnlineGameProvider({
 					<ActivePlayerContext.Provider value={activePlayerState}>
 						<CursorContext.Provider value={{ cursors, sendCursor }}>
 							<RosterContext.Provider value={roster ?? []}>
+							<SendDiceRollContext.Provider value={sendDiceRoll}>
 							{children}
 							<PresenceNotices notices={notices} />
 							{showInviteOverlay && (
 								<InviteLinkOverlay onClose={() => setShowInviteOverlay(false)} />
 							)}
+							</SendDiceRollContext.Provider>
 							</RosterContext.Provider>
 						</CursorContext.Provider>
 					</ActivePlayerContext.Provider>
