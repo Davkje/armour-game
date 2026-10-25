@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect } from "react";
+import { CardTilt3D } from "./CardTilt3D";
 import { CONDITIONS } from "@/lib/game/conditions";
 import type { BoardCard } from "@/lib/game/types";
 
@@ -24,14 +24,9 @@ export function CardZoomOverlay({ card, onClose }: { card: BoardCard; onClose: (
 			}}
 		>
 			<div className="flex items-center gap-6">
-				<Image
-					src={card.faceDown ? card.imageBack : card.imageFront}
+				<CardTilt3D
+					imageUrl={card.faceDown ? card.imageBack : card.imageFront}
 					alt={card.faceDown ? "Face-down card" : card.label}
-					width={500}
-					height={700}
-					quality={95}
-					className="max-h-[90vh] w-auto rounded-sm shadow-2xl"
-					draggable={false}
 				/>
 
 				{!card.faceDown && (card.item || card.conditions.length > 0) && (
